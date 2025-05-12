@@ -34,6 +34,7 @@ const MechanicList_2 = () => {
 
   const {
     mechanics,
+    setMechanics,
     industries,
     categories,
     location,
@@ -226,6 +227,9 @@ const MechanicList_2 = () => {
   //   );
   // }
 
+  console.log("selectedMech :", selectedMech);
+  console.log("reviewmodal :", mechanics);
+
   return (
     <>
       <Header
@@ -246,7 +250,7 @@ const MechanicList_2 = () => {
         </Pressable>
       )}
 
-      <ScrollView className="w-screen min-h-screen flex flex-rrow bg-gray-100 px-2 pb-6">
+      <ScrollView className="w-screen min-h-screen flex flex-rrow bg-gray-100 px-2 pb-6 ">
         <View
           className="flex flex-row rounded-sm mt-5  gap-2"
           style={{ zIndex: -1 }}
@@ -346,7 +350,7 @@ const MechanicList_2 = () => {
             <Pressable
               className={`${
                 isOpen ? "w-full" : "w-full"
-              } flex flex-wrap justify-between cursor-pointer `}
+              } flex flex-wrap justify-between cursor-pointer mb-24`}
               style={{
                 flexDirection:
                   isSmallScreen || isMediumScreen ? "column" : "row",
@@ -482,7 +486,7 @@ const MechanicList_2 = () => {
                             }}
                             className="mt-2 bg-yellow-500 p-3 rounded-md"
                           >
-                            <Text className="hover:underline font-semibold">
+                            <Text className="hover:underline font-semibold mt-2">
                               View more
                             </Text>
                           </TouchableWithoutFeedback>
@@ -503,7 +507,7 @@ const MechanicList_2 = () => {
                               setViewMoreModalVisible(true);
                             }}
                           >
-                            <Text className="hover:underline font-semibold ">
+                            <Text className="hover:underline font-semibold mt-2">
                               View more
                             </Text>
                           </TouchableWithoutFeedback>
@@ -543,7 +547,7 @@ const MechanicList_2 = () => {
                             </Text>
                           ) : (
                             // filteredMechanics.map((mechanic) => (
-                            <>
+                            <View className="flex flex-row items-center gap-4">
                               <Text
                                 className="text-md font-semibold mt-2"
                                 style={{ flexShrink: 1 }}
@@ -559,14 +563,7 @@ const MechanicList_2 = () => {
                               >
                                 <Text className="text-white text-lg">Call</Text>
                               </Pressable>
-                              {/* <Pressable
-                                key={mechanic.id}
-                                onPress={() => openDialer(mechanic)}
-                                className="bg-red-500 p-3 rounded-md"
-                              >
-                                <Text>Call</Text>
-                              </Pressable> */}
-                            </>
+                            </View>
 
                             // ))
                           )}
@@ -594,7 +591,10 @@ const MechanicList_2 = () => {
                               </Pressable>
                             </>
                           ) : (
-                            <View className="flex flex-row gap-4 ">
+                            <View
+                              pointerEvents="box-none"
+                              className="flex flex-row gap-4"
+                            >
                               <Text>No Reviews Yet</Text>
                               <Pressable
                                 onPress={() => {
@@ -602,7 +602,12 @@ const MechanicList_2 = () => {
                                   setReviewModal(true);
                                 }}
                               >
-                                <Text className="hover:underline hover:text-blue-500">
+                                <Text
+                                  style={{
+                                    color: "#3B82F6",
+                                    textDecorationLine: "underline",
+                                  }}
+                                >
                                   Add yours
                                 </Text>
                               </Pressable>
@@ -652,6 +657,9 @@ const MechanicList_2 = () => {
               reviewText={reviewText}
               reviews={reviews}
               onClose={() => setReviewModal(false)}
+              setMechanics={setMechanics}
+              selectedMech={selectedMech}
+              setReviews={setReviews}
             />
           )}
         </View>

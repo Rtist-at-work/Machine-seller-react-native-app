@@ -36,7 +36,7 @@ console.log("page :",page)
   //   }
   // }, [userId, mechanics]);
 
-  return { mechanics, industries, categories, location,page,setPage,totalPages,setTotalPages };
+  return { mechanics,setMechanics, industries, categories, location,page,setPage,totalPages,setTotalPages };
 };
 
 export default GetMechanic;

@@ -3,12 +3,15 @@ import { View, Image, FlatList, Pressable } from "react-native";
 import { useVideoPlayer, VideoView } from "expo-video";
 
 const PostGrid = ({ posts, onPostPress, width }) => {
+  const columns = width >= 1024 ? 4 : 3;
+
   return (
     <FlatList
       data={posts}
+      key={`cols-${columns}`} // 👈 key changes when column count changes
       keyExtractor={(item) => item._id}
       className={`p-4 ${width >= 1024 ? "px-8" : ""}`}
-      numColumns={3}
+      numColumns={columns}
       renderItem={({ item, index }) => {
         const isVideo = item.media.length === 24; // assume 24-character ID = video
 

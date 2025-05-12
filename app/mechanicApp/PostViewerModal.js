@@ -27,6 +27,7 @@ const PostViewerModal = ({
   posts,
   activeIndex,
   setActiveIndex,
+  page,
   onClose,
   userProfile,
   width,
@@ -59,7 +60,6 @@ const PostViewerModal = ({
         { postId: postId },
         token
       );
-      console.log("response :", response);
       if (response.status === 200) {
         setPosts((prevPosts) =>
           prevPosts.filter((post) => post._id !== postId)
@@ -126,15 +126,15 @@ const PostViewerModal = ({
     if (!posts || activeIndex === null) return null;
 
     return posts.map((post, index) => {
-      const videoSource = `http://192.168.1.9:5000/video/${post.media}`;
-      const player = useVideoPlayer(videoSource, (player) => {
-        player.loop = true;
-        player.play();
-      });
+      // const videoSource = `http://192.168.1.9:5000/video/${post.media}`;
+      // const player = useVideoPlayer(videoSource, (player) => {
+      //   player.loop = true;
+      //   player.play();
+      // });
 
-      const { isPlaying } = useEvent(player, "playingChange", {
-        isPlaying: player.playing,
-      });
+      // const { isPlaying } = useEvent(player, "playingChange", {
+      //   isPlaying: player.playing,
+      // });
 
       return (
         <View
@@ -185,12 +185,14 @@ const PostViewerModal = ({
             >
               {userProfile?.username}
             </Text>
-            <Pressable
-              onPress={() => setShowDelete(() => post._id)}
-              style={{ position: "absolute", right: 8 }}
-            >
-              <Entypo name="dots-three-vertical" size={24} color="black" />
-            </Pressable>
+            {page != "uservisit" && (
+              <Pressable
+                onPress={() => setShowDelete(() => post._id)}
+                style={{ position: "absolute", right: 8 }}
+              >
+                <Entypo name="dots-three-vertical" size={24} color="black" />
+              </Pressable>
+            )}
 
             {showDelete === post._id && (
               <Pressable
@@ -233,25 +235,15 @@ const PostViewerModal = ({
             >
               {post.media.length === 24 ? (
                 <TouchableOpacity
-                  onPress={() => {
-                    if (isPlaying) {
-                      player.pause();
-                    } else {
-                      player.play();
-                    }
-                  }}
+                // onPress={() => {
+                //   if (isPlaying) {
+                //     player.pause();
+                //   } else {
+                //     player.play();
+                //   }
+                // }}
                 >
-                  <VideoView
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      resizeMode: "contain",
-                    }}
-                    player={player}
-                    allowsFullscreen={false}
-                    allowsPictureInPicture={false}
-                    controls={false}
-                  />
+                  <VideoGridItem videoId={post.media} />
                 </TouchableOpacity>
               ) : (
                 <Image
@@ -381,6 +373,34 @@ const PostViewerModal = ({
         </ScrollView>
       </BlurView>
     </Modal>
+  );
+};
+
+const VideoGridItem = ({ videoId, onPostPress, index }) => {
+  const player = useVideoPlayer(
+    `http://192.168.1.9:5000/video/${videoId}`,
+    (player) => {
+      player.loop = true;
+      player.play();
+    }
+  );
+
+  return (
+    <Pressable
+      onPress={() => onPostPress(index)}
+      className="flex justify-center items-center h-full w-full"
+    >
+      <View>
+        <VideoView
+          player={player}
+          style={{ width: "100%", height: "100%" }}
+          controls={false}
+          allowsFullscreen={false}
+          allowsPictureInPicture={false}
+          resizeMode="cover"
+        />
+      </View>
+    </Pressable>
   );
 };
 

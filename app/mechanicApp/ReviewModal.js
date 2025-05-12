@@ -13,6 +13,7 @@ import { BlurView } from "expo-blur";
 import ReviewPopup from "./ReviewPopUp";
 import { FormatTime } from "../context/FormatTime";
 import { useContext } from "react";
+import { useSocketContext } from "../context/SocketContext";
 
 const ReviewModal = ({
   visible,
@@ -25,9 +26,54 @@ const ReviewModal = ({
   reviewText,
   setReviewText,
   reviews,
+  setMechanics,
+  selectedMech,
+  setReviews,
 }) => {
   const { width, height } = Dimensions.get("window"); // Get device width and height
   const { formatTime } = useContext(FormatTime); // ✅ correct way to use
+
+  const { socket } = useSocketContext();
+
+  useEffect(() => {
+    const handleReviewsUpdate = (data) => {
+      console.log('data :', data)
+      setReviews((prev) => [...prev, data.review]);
+        setMechanics((prev) =>
+          prev.map((mech) =>
+            mech._id === selectedMech
+              ? {
+                  ...mech,
+                  averageRating: data.mechanic.averageRating,
+                  reviews: data.mechanic.reviews,
+                }
+              : mech
+          )
+        );
+    };
+
+    if (socket) {
+      socket.on("review-updated", handleReviewsUpdate);
+    }
+
+    return () => {
+      if (socket) {
+        socket.off("review-updated", handleReviewsUpdate);
+      }
+    };
+  }, [socket]);
+  console.log('@iiii ', (socket && selectedMech))
+
+  useEffect(() => {
+    if (socket && selectedMech) {
+      console.log('@useef')
+      socket.emit("join-review-room", selectedMech);
+
+      return () => {
+        socket.emit("leave-review-room", selectedMech);
+      };
+    }
+  }, [socket, selectedMech]);
 
   return (
     <Modal

@@ -381,7 +381,7 @@ const ProfilePage = ({ route }) => {
           style={{ width: "100%", height: "48" }}
         >
           <Pressable
-            onPress={()=>navigation.goBack()}
+            onPress={() => navigation.goBack()}
             className="flex-row items-center h-12 px-4"
           >
             <Icon name="arrow-left" size={24} color="grey" />
@@ -816,7 +816,7 @@ const ProfilePage = ({ route }) => {
           width={width}
         />
         {/* </View> */}
-        {activePostIndex && (
+        {activePostIndex !== null && (
           <PostViewerModal
             posts={posts}
             activeIndex={activePostIndex}
@@ -829,6 +829,7 @@ const ProfilePage = ({ route }) => {
             comments={comments}
             setComments={setComments}
             comment={comment}
+            page={page}
             setComment={setComment}
             fetchComments={fetchComments}
             deleteApi={deleteApi}

@@ -23,8 +23,8 @@ export default function index() {
     <>
       {/* {Platform.OS === "web" && <HomeScreen />}
        */}
-      <LandingPage />
-      {/* <BottomNavBar /> */}
+      {/* <LandingPage /> */}
+      <BottomNavBar />
       {/* <LikeButton /> */}
       {/* <SignUp /> */}
       {/* <SellScreen /> */}

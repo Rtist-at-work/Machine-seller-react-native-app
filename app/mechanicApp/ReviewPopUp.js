@@ -18,6 +18,7 @@ const ReviewPopup = ({
   rating,
   reviewText,
   setReviewText,
+
 }) => {
   const { width, height } = Dimensions.get("window"); // Get device width and height
 
