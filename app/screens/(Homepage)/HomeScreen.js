@@ -12,22 +12,34 @@ import Contact from "./Contact";
 import Footer from "@/app/component/(footer)/Footer";
 import Loading from "@/app/component/Loading";
 import ImageSlider from "@/app/component/(mobileHeader)/ImageSlider";
+import useGeoLocation from "@/app/hooks/GeoLocation";
 
 export default function HomeScreen() {
   const [pageDetails, setPageDetails] = useState(null);
-  const geoCoords = { latitude: 11.0788608, longitude: 76.9327104 };
+  const { geoCoords } = useGeoLocation();
+
   const { isLoading, startLoading, stopLoading } = useContext(LoadingContext);
   const { getJsonApi } = useApi();
+  console.log("location in hoepage :", geoCoords);
 
   useEffect(() => {
-    fetchDetails();
-  }, []);
+    const isValidNumber = (val) => typeof val === "number" && !isNaN(val);
+
+    if (
+      geoCoords &&
+      isValidNumber(geoCoords.latitude) &&
+      isValidNumber(geoCoords.longitude)
+    ) {
+      fetchDetails();
+    }
+  }, [geoCoords]);
 
   const fetchDetails = async () => {
     startLoading();
     try {
       const queraystring = new URLSearchParams(geoCoords).toString();
       const data = await getJsonApi(`homepage/?${queraystring}`);
+      console.log("data : ", data);
       setPageDetails(data.data);
       console.log(data, "data in home page");
     } catch (error) {
@@ -35,7 +47,6 @@ export default function HomeScreen() {
     } finally {
       stopLoading();
     }
-    
   };
 
   if (isLoading || pageDetails === null) {
@@ -50,7 +61,11 @@ export default function HomeScreen() {
       {Platform.OS === "web" && <Banner />}
       {pageDetails && (
         <>
-          <Recommeded recommendedProducts={pageDetails.recommentedProducts} />
+          <Recommeded
+            recommendedProducts={
+              pageDetails.recommentedProducts[0].productsWithFiles
+            }
+          />
           <Explore categoriesData={[pageDetails.category]} />
         </>
       )}

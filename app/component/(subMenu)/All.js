@@ -11,19 +11,22 @@ import useApi from "@/app/hooks/useApi";
 
 export default function All() {
   const [show, setShow] = useState(false);
-  const [subCategoryShow, setSubCategoryShow] = useState(false);
-  const [hoverClr, setHoverClr] = useState(null);
+  // const [subCategoryShow, setSubCategoryShow] = useState(false);
+  // const [hoverClr, setHoverClr] = useState(null);
   const [industries, setIndustries] = useState([]);
-  console.log("indus :", industries);
-  const [subCategories, setSubCategories] = useState([]);
-  console.log("subcategory :", subCategories);
+  // console.log("indus :", industries);
+  // const [subCategories, setSubCategories] = useState([]);
+  // console.log("subcategory :", subCategories);
   const [industry, setIndustry] = useState(null);
+  const [hoveredIndustry, setHoveredIndustry] = useState(null);
+  const [hoveredCategory, setHoveredCategory] = useState(null);
+  // console.log(industries);
 
   const { width } = useWindowDimensions();
-  const isScreen = width > 430;
+  // const isScreen = width > 430;
   const { getJsonApi } = useApi();
 
-  const [showSubItems, setShowSubItems] = useState(false);
+  // const [showSubItems, setShowSubItems] = useState(false);
 
   // Use a ref for the timeout so it persists across renders
   const closeTimeout = useRef(null);
@@ -41,59 +44,60 @@ export default function All() {
   const getIndustries = async () => {
     try {
       const data = await getJsonApi(`CategoryPage`);
-      setIndustries(data.data.industries.industries || []);
-      setSubCategories(data.data.industries.subcategories || []);
+
+      // console.log("Industries API Response:", data.data);
+      setIndustries(data.data.industries || []);
     } catch (err) {
       console.log("API Error:", err);
     }
   };
 
-  const getCategory = async () => {
-    if (!industry) return;
-    try {
-      const categoryData = await getJsonApi(
-        `CategoryPage/${industry}/categoryPage`
-      );
-      // Do something with categoryData if needed
-    } catch (error) {
-      console.log(error, "what error");
-    }
-  };
+  // const getCategory = async () => {
+  //   if (!industry) return;
+  //   try {
+  //     const categoryData = await getJsonApi(
+  //       `CategoryPage/${industry}/categoryPage`
+  //     );
+  //     // Do something with categoryData if needed
+  //   } catch (error) {
+  //     console.log(error, "what error");
+  //   }
+  // };
 
   // Helper to get subcategories for the hovered industry
-  const getSubcategoriesForIndustry = (index) => {
-    if (!subCategories || !industries || !industries[index]) return null;
-    // Try both array and object structures for robustness
-    if (Array.isArray(subCategories)) {
-      // Array of objects: [{Industry1: [...]}, ...]
-      const matched = subCategories[index];
-      if (!matched) return null;
-      const subCate = Object.keys(matched)[0];
-      return { name: subCate, items: matched[subCate] };
-    } else if (typeof subCategories === "object") {
-      // Object: { Industry1: [...] }
-      const industryName = industries[index];
-      return { name: industryName, items: subCategories[industryName] || [] };
-    }
-    return null;
-  };
+  // const getSubcategoriesForIndustry = (index) => {
+  //   if (!subCategories || !industries || !industries[index]) return null;
+  //   // Try both array and object structures for robustness
+  //   if (Array.isArray(subCategories)) {
+  //     // Array of objects: [{Industry1: [...]}, ...]
+  //     const matched = subCategories[index];
+  //     if (!matched) return null;
+  //     const subCate = Object.keys(matched)[0];
+  //     return { name: subCate, items: matched[subCate] };
+  //   } else if (typeof subCategories === "object") {
+  //     // Object: { Industry1: [...] }
+  //     const industryName = industries[index];
+  //     return { name: industryName, items: subCategories[industryName] || [] };
+  //   }
+  //   return null;
+  // };
 
   // --- Dropdown Hover Delay Logic ---
-  const handleMouseLeave = () => {
-    closeTimeout.current = setTimeout(() => {
-      setShow(false);
-      setHoverClr(null);
-      setSubCategoryShow(false);
-    }, 120); // 120ms delay
-  };
+  // const handleMouseLeave = () => {
+  //   closeTimeout.current = setTimeout(() => {
+  //     setShow(false);
+  //     setHoverClr(null);
+  //     setSubCategoryShow(false);
+  //   }, 120); // 120ms delay
+  // };
 
-  const handleMouseEnter = () => {
-    if (closeTimeout.current) {
-      clearTimeout(closeTimeout.current);
-      closeTimeout.current = null;
-    }
-    setShow(true);
-  };
+  // const handleMouseEnter = () => {
+  //   if (closeTimeout.current) {
+  //     clearTimeout(closeTimeout.current);
+  //     closeTimeout.current = null;
+  //   }
+  //   setShow(true);
+  // };
 
   // Clean up timeout on unmount
   useEffect(() => {
@@ -105,15 +109,14 @@ export default function All() {
   //                             industry
   // )}`}
 
-  const handleProductPress = (category) => {
-    console.log(category, "category");
-    if (Platform.OS === "web") {
-      router.push(`/screens/(productPage)/ProductList?searchTerms=${category.name}`);
-    } else {
-      navigation.navigate("ProductList", { searchTerms: category });
-    }
-  };
-
+  // const handleProductPress = (category) => {
+  //   console.log(category, "category");
+  //   if (Platform.OS === "web") {
+  //     router.push(`/screens/(productPage)/ProductList?searchTerms=${category.name}`);
+  //   } else {
+  //     navigation.navigate("ProductList", { searchTerms: category });
+  //   }
+  // };
   return (
     <View>
       {/* Web-only navigation menu */}
@@ -123,7 +126,7 @@ export default function All() {
           style={{ position: "sticky", top: 0 }}
         >
           {/* Industries Dropdown */}
-          <Pressable className="flex-1">
+          <Pressable className="flex-1 relative">
             <Text
               className="text-center text-TealGreen text-sm font-semibold md:text-lg md:font-bold"
               onMouseEnter={() => setShow(true)}
@@ -133,109 +136,104 @@ export default function All() {
 
             {show && (
               <View
-                className="relative flex ms-5 md:ms-32 mt-4 z-50 flex-row w-full mb-2"
+                className="absolute left-0 z-50 flex flex-row shadow-xl ml-10 mt-14 rounded-lg border border-gray-200"
                 onMouseLeave={() => {
-                  handleMouseLeave();
-                  setShowSubItems(false);
+                  setShow(false);
+                  setHoveredIndustry(null);
+                  setHoveredCategory(null);
                 }}
-                onMouseEnter={handleMouseEnter}
               >
-                {/* Industry List (Left Panel) */}
-                <Pressable className="flex-1">
-                  <View
-                    className="absolute left-0 top-full border-2 border-gray-300 bg-white mt-2 rounded-md flex flex-col z-50"
-                    style={{ width: isScreen ? "100%" : "200%" }}
-                  >
-                    {industries?.length > 0 &&
-                      industries.map((industry, index) => (
-                        <Link
+                {/* Industries */}
+                <View className="bg-white p-2 min-w-[170px] space-y-1">
+                  {industries?.industries?.map((industry, index) => (
+                    <Link
+                      key={industry?.id || index}
+                      href={`/screens/CategoryList/?industry=${encodeURIComponent(
+                        industry?.name || industry
+                      )}`}
+                      asChild
+                    >
+                      <Text
+                        key={index}
+                        className={`cursor-pointer px-3 py-2 rounded-md transition-all duration-200 text-sm ${
+                          hoveredIndustry === industry
+                            ? "bg-TealGreen text-white font-semibold"
+                            : "hover:bg-gray-100 text-gray-700"
+                        }`}
+                        onMouseEnter={() => {
+                          setHoveredIndustry(industry);
+                          setHoveredCategory(null);
+                        }}
+                      >
+                        {industry}
+                      </Text>
+                    </Link>
+                  ))}
+                </View>
+
+                {/* Categories */}
+                {hoveredIndustry && (
+                  <View className="bg-gray-50 p-2 min-w-[170px] space-y-1 border-l border-gray-200">
+                    {(
+                      industries?.categories.find((c) => c[hoveredIndustry])?.[
+                        hoveredIndustry
+                      ] || []
+                    ).map((category, index) => (
+                      <Link
+                        key={industry?.id || index}
+                       href={`/screens/CategoryList/?industry=${encodeURIComponent(hoveredIndustry)}&category=${encodeURIComponent(category)}`}
+
+                        asChild
+                      >
+                        <Text
                           key={index}
-                          href={`/screens/CategoryList/?industry=${encodeURIComponent(
-                            industry
-                          )}`}
-                          asChild
+                          className={`cursor-pointer px-3 py-2 rounded-md transition-all duration-200 text-sm ${
+                            hoveredCategory === category
+                              ? "bg-TealGreen text-white font-semibold"
+                              : "hover:bg-gray-200 text-gray-700"
+                          }`}
+                          onMouseEnter={() => setHoveredCategory(category)}
                         >
-                          <Pressable
-                            onMouseEnter={() => {
-                              setHoverClr(index);
-                              setSubCategoryShow(true);
-                            }}
-                          >
-                            <Text
-                              className={`p-1 ml-1 text-gray-600 text-lg hover:text-TealGreen hover:underline ${
-                                hoverClr === index
-                                  ? "text-TealGreen underline"
-                                  : ""
-                              }`}
-                            >
-                              {industry}
-                            </Text>
-                          </Pressable>
-                        </Link>
-                      ))}
+                          {category}
+                        </Text>
+                      </Link>
+                    ))}
                   </View>
-                </Pressable>
-
-                {/* Subcategory Panel (Middle Panel) */}
-                {subCategoryShow && hoverClr !== null && (
-                  <Pressable
-                    className="absolute top-full left-[calc(100%+1rem)] mt-2 z-50 bg-white border border-gray-300 rounded-md p-2"
-                    onMouseEnter={() => setShowSubItems(true)}
-                    onMouseLeave={() => {
-                      setShowSubItems(false);
-                    }}
-                    style={{ width: 200 }}
-                  >
-                    {(() => {
-                      const subData = getSubcategoriesForIndustry(hoverClr);
-                      console.log("subData :", subData);
-
-                      if (!subData) return <Text>No subcategory</Text>;
-
-                      return (
-                        <Pressable
-                          onPress={() => handleProductPress(subData)}
-                          className="min-h-screen bg-yellow-500"
-                        >
-                          <Text
-                            className={`p-1 ml-1 text-gray-600 text-lg hover:text-TealGreen hover:underline ${
-                              hoverClr === subData
-                                ? "text-TealGreen underline"
-                                : ""
-                            }`}
-                          >
-                            {subData.name}
-                          </Text>
-                        </Pressable>
-                      );
-                    })()}
-                  </Pressable>
                 )}
 
-                {/* SubItems Panel (Right Panel) */}
-                {showSubItems && hoverClr !== null && (
-                  <View
-                    className="absolute top-full left-[calc(200%+2rem)] mt-2 z-50 bg-white border border-gray-300 rounded-md p-2"
-                    style={{ width: 200 }}
-                  >
-                    {(() => {
-                      const subData = getSubcategoriesForIndustry(hoverClr);
-                      if (!subData || !subData.items?.length)
-                        return <Text>No items</Text>;
-
-                      return subData.items.map((item, i) => (
+                {/* Subcategories */}
+                {hoveredCategory && (
+                  <View className="bg-blue-50 p-2 min-w-[170px] space-y-1 border-l border-blue-200">
+                    {(
+                      industries?.subcategories.find(
+                        (s) => s[hoveredCategory]
+                      )?.[hoveredCategory] || []
+                    ).map((sub, index) => (
+                      <Pressable
+                        onPress={() => {
+                          // function handleProductPress(subCategory) {
+                          if (Platform.OS === "web") {
+                            router.push(
+                              `/screens/(productPage)/ProductList?searchTerms=${sub}&category=${hoveredCategory}&industry=${hoveredIndustry}`
+                            );
+                          } else {
+                            navigation.navigate("ProductList", {
+                              searchTerms: sub,
+                              category: hoveredCategory,
+                              industry: hoveredIndustry,
+                            });
+                          }
+                          // }
+                        }}
+                      >
                         <Text
-                          key={i}
-                          className={`p-1 ml-1 text-gray-600 text-lg hover:text-TealGreen hover:underline ${
-                            hoverClr === subData
-                              ? "text-TealGreen underline"
-                              : ""
-                          }`}
+                          key={index}
+                          className="px-3 py-2 text-sm text-gray-800 hover:bg-blue-100 rounded-md transition-all duration-200"
                         >
-                          {item}
+                          {sub}
                         </Text>
-                      ));
-                    })()}
+                      </Pressable>
+                    ))}
                   </View>
                 )}
               </View>

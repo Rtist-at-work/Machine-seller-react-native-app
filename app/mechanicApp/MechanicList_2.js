@@ -69,6 +69,7 @@ const MechanicList_2 = () => {
   const [selectedSubCategory, setSelectedSubCategory] = useState("");
   const [selectedServices, setSelectedServices] = useState("");
   const [selectedRating, setSelectedRating] = useState();
+  const [selectedDistricts, setSelectedDistricts] = useState([]);
 
   // review section
 
@@ -191,7 +192,8 @@ const MechanicList_2 = () => {
       matchesRating
     );
   });
-
+  console.log("mechanicSearchResults :", mechanicSearchResults);
+  console.log("fil :", filteredMechanics);
   const handleProfileNavigation = async (id) => {
     const token = await AsyncStorage.getItem("userToken");
 
@@ -209,26 +211,6 @@ const MechanicList_2 = () => {
       });
     }
   };
-  // if (!expandedMechanicId) {
-  //   return (
-  //     <View
-  //       style={{
-  //         flex: 1,
-  //         justifyContent: "center",
-  //         alignItems: "center",
-  //         paddingVertical: 40,
-  //       }}
-  //     >
-  //       <ActivityIndicator size="large" color="#2563eb" />
-  //       <Text style={{ marginTop: 10, fontSize: 16, color: "#555" }}>
-  //         Loading posts...
-  //       </Text>
-  //     </View>
-  //   );
-  // }
-
-  console.log("selectedMech :", selectedMech);
-  console.log("reviewmodal :", mechanics);
 
   return (
     <>
@@ -252,12 +234,13 @@ const MechanicList_2 = () => {
 
       <ScrollView className="w-screen min-h-screen flex flex-rrow bg-gray-100 px-2 pb-6 ">
         <View
-          className="flex flex-row rounded-sm mt-5  gap-2"
+          className={`flex flex-row rounded-sm mt-5 min-h-screen  gap-2 mb-48`}
           style={{ zIndex: -1 }}
         >
           {(width >= 1024 || isOpen) && (
             <View className={`${width < 1024 ? "absolute z-50 w-[90%]" : ""}`}>
               <FilterComponent
+                page="mech"
                 industries={industries}
                 categories={categories}
                 location={location}
@@ -275,11 +258,18 @@ const MechanicList_2 = () => {
                 setSelectedServices={setSelectedServices}
                 selectedRating={selectedRating}
                 setSelectedRating={setSelectedRating}
+                setIsOpen={setIsOpen}
+                selectedDistricts={selectedDistricts}
+                setSelectedDistricts={setSelectedDistricts}
               />
             </View>
           )}
           <ScrollView
-            className={`${isOpen ? "w-[80%]" : "w-full"}  mb-4 transition-all `}
+            className={`${
+              isOpen ? "w-[80%]" : "w-full"
+            }   mb-4 transition-all `}
+            style={{ minHeight: "100%", maxHeight: "100%" }}
+            contentContainerStyle={{ flexGrow: 1 }}
           >
             <Modal
               visible={viewMoreModalVisible}
@@ -350,7 +340,9 @@ const MechanicList_2 = () => {
             <Pressable
               className={`${
                 isOpen ? "w-full" : "w-full"
-              } flex flex-wrap justify-between cursor-pointer mb-24`}
+              } flex flex-wrap justify-between cursor-pointer ${
+                Platform.OS === "web" ? "mb-24" : "mb-48"
+              }`}
               style={{
                 flexDirection:
                   isSmallScreen || isMediumScreen ? "column" : "row",
@@ -495,7 +487,7 @@ const MechanicList_2 = () => {
                         <View className="bg-gray-100 p-2 mt-2 ">
                           <View>
                             <Text>
-                              {mechanic.services[0].length > 25
+                              {mechanic?.services[0]?.length > 25
                                 ? `${mechanic.services[0].substring(0, 25)}...`
                                 : mechanic.services[0]}
                             </Text>

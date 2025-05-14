@@ -16,8 +16,7 @@ const useWishlist = () => {
         },
         token
       );
-      console.log("Wishlist updated:", data);
-      setWishlist(data.data); // Update the wishlist with the new data
+      setWishlist(data.data.favourites); // Update the wishlist with the new data
     } catch (err) {
       console.log("Error adding to wishlist:", err);
     }

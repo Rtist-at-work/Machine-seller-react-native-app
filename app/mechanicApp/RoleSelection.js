@@ -1,15 +1,12 @@
-import React, {  useState } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
   Dimensions,
-
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-
-
 
 import UserDetails from "./EditProfile"; // 👈 Add import
 // import useGeoLocation from "@/app/hooks/GeoLocation";
@@ -58,7 +55,6 @@ function RoleSelection({
 
   return (
     <View style={styles.container}>
-     
       <Text style={styles.heading}>What best describes you?</Text>
 
       <View style={styles.rolesContainer}>
@@ -107,6 +103,7 @@ function RoleSelection({
 
       {/* Modal for Mechanic */}
       <UserDetails
+        setStep={setStep}
         subCategories={subCategories}
         setSubCategories={setSubCategories}
         mechanicDetails={mechanicDetails}

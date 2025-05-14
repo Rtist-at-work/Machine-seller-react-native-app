@@ -89,7 +89,7 @@ export default function Header({
       className="bg-TealGreen w-full px-4 py-3"
       style={{ position: "sticky", top: 0, zIndex: 50 }}
     >
-      <View className="flex-row items-center justify-between ">
+      <View className="flex-row items-center ">
         {/* Logo */}
         <Text className="text-white text-xl font-bold shrink-0 w-[100px] ">
           Machine Street
@@ -98,7 +98,7 @@ export default function Header({
         {/* Search Bar */}
         <View
           ref={searchRef}
-          className="flex-row bg-white rounded-md items-center flex-1 min-w-0 relative"
+          className="flex-row bg-white rounded-md items-center flex-1 min-w-0 relative mx-auto"
           style={{
             maxWidth: isDesktop ? 600 : undefined,
             paddingHorizontal: 10,
@@ -129,7 +129,7 @@ export default function Header({
         >
           <MaterialIcons name="account-circle" size={40} color="white" />
         </Pressable> */}
-        <Pressable
+        {/* <Pressable
           onPress={() => {
             if (Platform.OS === "web") {
               router.push("/screens/(profile)/ProfilePage");
@@ -139,7 +139,7 @@ export default function Header({
           }}
         >
           <MaterialIcons name="account-circle" size={40} color="white" />
-        </Pressable>
+        </Pressable> */}
 
         {/* Right Side Icons */}
 

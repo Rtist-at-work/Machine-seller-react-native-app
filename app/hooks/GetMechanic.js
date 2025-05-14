@@ -11,7 +11,7 @@ const GetMechanic = () => {
   const [totalPages, setTotalPages] = useState(1);
   // const [userId, setUserId] = useState(null);
   // const [userProfile, setUserProfile] = useState(null);
-console.log("page :",page)
+
   useEffect(() => {
     async function fetchMechanics() {
       try {

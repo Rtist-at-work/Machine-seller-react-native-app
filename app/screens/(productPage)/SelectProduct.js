@@ -37,7 +37,6 @@ export default function SelectProduct() {
   const { selectedConversation, setSelectedConversation } = useConversation();
   const { wishlist, addToWishlist } = useWishlist();
   const [product, setProduct] = useState({});
-  // console.log(product, "product");
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const { getJsonApi } = useApi();
@@ -45,7 +44,6 @@ export default function SelectProduct() {
   const slideNavigator = (i) => {
     setCurrentIndex(i);
   };
-
   let id;
 
   if (Platform.OS === "web") {
@@ -76,21 +74,21 @@ export default function SelectProduct() {
     try {
       const data = await getJsonApi(`productDetails/${id}`);
 
-      const productData = data?.data?.[0];
+      const productData = data?.data?.mainProduct;
 
       setProduct(productData);
 
-      if (productData?.category) {
-        const recommendedData = await getJsonApi(
-          `products?category=${productData.category}`
-        );
+      // if (productData?.category) {
+      //   const recommendedData = await getJsonApi(
+      //     `products?category=${productData.category}`
+      //   );
 
-        const recommended = recommendedData?.data?.filter(
-          (item) => item._id !== productData._id
-        );
+      //   const recommended = recommendedData?.data?.filter(
+      //     (item) => item._id !== productData._id
+      //   );
 
-        setRecommendedProducts(recommended || []);
-      }
+      //   setRecommendedProducts(recommended || []);
+      // }
     } catch (error) {
       console.error(
         "❌ Error fetching product or recommended products:",
@@ -109,7 +107,7 @@ export default function SelectProduct() {
     if (!product) {
       console.log("Product Not Found");
       return;
-    }  
+    }
 
     const productUrl = `http://localhost:8081/product/${
       product.MachineName || product._id

@@ -24,7 +24,7 @@ export default function index() {
       {/* {Platform.OS === "web" && <HomeScreen />}
        */}
       {/* <LandingPage /> */}
-      <BottomNavBar />
+      {/* <BottomNavBar /> */}
       {/* <LikeButton /> */}
       {/* <SignUp /> */}
       {/* <SellScreen /> */}
@@ -33,7 +33,7 @@ export default function index() {
       {/* <MechanicList_2 /> */}
       {/* <ProfilePage /> */}
       {/* <SellPage /> */}
-      {/* <HomeScreen /> */}
+      <HomeScreen />
       {/* <All />  */}
     </>
   );

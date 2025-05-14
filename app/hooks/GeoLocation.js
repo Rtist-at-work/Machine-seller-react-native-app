@@ -83,6 +83,7 @@ const useGeoLocation = () => {
       console.error("Geocoding error:", error);
     }
   };
+  console.log('location in geo :', location)
   return {
     geoCoords: location || {},
     errorMsg,

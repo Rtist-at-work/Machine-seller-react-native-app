@@ -7,6 +7,7 @@ import {
   Modal,
   SafeAreaView,
   Pressable,
+  Animated,
 } from "react-native";
 import Icon from "react-native-vector-icons/Feather";
 import Feather from "react-native-vector-icons/Feather";
@@ -119,7 +120,34 @@ const PostViewerModal = ({
     }
   }, [activeIndex, isLayoutDone]);
 
-  console.log("@active index :", activeIndex);
+  const lastTap = useRef(null);
+  const scale = useRef(new Animated.Value(0)).current;
+
+  const handleDoubleTap = () => {
+    const now = Date.now();
+    if (lastTap.current && now - lastTap.current < 300) {
+      // Double tap detected
+      // onLike(post._id);
+      animateHeart();
+    } else {
+      lastTap.current = now;
+    }
+  };
+
+  const animateHeart = () => {
+    Animated.sequence([
+      Animated.timing(scale, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scale, {
+        toValue: 0,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
 
   // Move all hook declarations before any conditional returns
   const renderPosts = () => {
@@ -220,10 +248,12 @@ const PostViewerModal = ({
               width: "100%",
               alignItems: "center",
               justifyContent: "center",
+              position: "relative"
             }}
           >
             {/* Media Container */}
-            <View
+            <Pressable
+              onPress={handleDoubleTap}
               style={{
                 width: "100%",
                 aspectRatio: 1,
@@ -258,7 +288,21 @@ const PostViewerModal = ({
                 />
                 // <View className="bg-red-600"></View>
               )}
-            </View>
+              <Animated.View
+                style={{
+                  position: "absolute",
+                  top: "40%",
+                  left: "40%",
+                  transform: [{ scale }],
+                  opacity: scale,
+                }}
+              >
+                <Image
+                  source={require("../assests/machine/heart.png")} // ❤️ icon
+                  style={{ width: 60, height: 60 }}
+                />
+              </Animated.View>
+            </Pressable>
 
             <View
               style={{

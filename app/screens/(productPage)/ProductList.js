@@ -9,10 +9,9 @@ import {
   Platform,
   SafeAreaView,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Divider } from "react-native-paper";
 import { Checkbox } from "react-native-paper";
-import RadioGroup from "react-native-radio-buttons-group";
 import Icon from "react-native-vector-icons/Ionicons";
 import { useLocalSearchParams } from "expo-router";
 import { useRoute } from "@react-navigation/native";
@@ -21,8 +20,11 @@ import useApi from "@/app/hooks/useApi";
 import GuidePage from "../(Homepage)/GuidePage";
 import Footer from "@/app/component/(footer)/Footer";
 import { Ionicons } from "@expo/vector-icons";
+import Octicons from "@expo/vector-icons/Octicons";
+
 import { useNavigation } from "@react-navigation/native";
 import All from "@/app/component/(subMenu)/All";
+import FilterComponent from "@/app/mechanicApp/Filter";
 
 export default function ProductList() {
   const router = useRouter();
@@ -44,59 +46,16 @@ export default function ProductList() {
   const [selectedPriceType, setSelectedPriceType] = useState("1");
   const [isOpen, setIsOpen] = useState(false);
   const [selectedState, setSelectedState] = useState("");
-  const [selectedDistricts, setSelectedDistricts] = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("");
+  const [statesWithDistricts, setStateWithDistricts] = useState([]);
 
-  const handleStateClick = (state) => {
-    setSelectedState(state);
-    setSelectedDistricts(statesWithDistricts[state] || []);
-  };
+  // const handleStateClick = (state) => {
+  //   setSelectedState(state);
+  //   setSelectedDistricts(statesWithDistricts[state] || []);
+  // };
 
-  const statesWithDistricts = {
-    "Tamil Nadu": [
-      "Chennai",
-      "Coimbatore",
-      "Madurai",
-      "Tiruchirappalli",
-      "Salem",
-      "Erode",
-      "Thanjavur",
-      "Vellore",
-      "Tirunelveli",
-      "Dindigul",
-    ],
-    Karnataka: [
-      "Bengaluru Urban",
-      "Mysuru",
-      "Mangaluru",
-      "Hubballi",
-      "Belagavi",
-      "Davanagere",
-      "Tumakuru",
-      "Shivamogga",
-    ],
-    Kerala: [
-      "Thiruvananthapuram",
-      "Kochi",
-      "Kozhikode",
-      "Thrissur",
-      "Alappuzha",
-      "Kollam",
-      "Kannur",
-      "Palakkad",
-    ],
-    Maharashtra: [
-      "Mumbai",
-      "Pune",
-      "Nagpur",
-      "Nashik",
-      "Thane",
-      "Aurangabad",
-      "Solapur",
-      "Kolhapur",
-    ],
-  };
-
+  console.log("products :", products);
   const [storePrice, setStorePrice] = useState({
     fromPrice: "",
     toPrice: "",
@@ -151,24 +110,34 @@ export default function ProductList() {
   //   console.log(product?.price, "price");
   // });
 
-  let searchTerms;
-  if (Platform.OS === "web") {
-    searchTerms = useLocalSearchParams().searchTerms;
-  } else {
-    searchTerms = route?.params?.searchTerms;
-  }
+  const searchTerm = useMemo(() => {
+    if (Platform.OS === "web") {
+      const { searchTerms, category, industry } = useLocalSearchParams();
+      return [searchTerms, category, industry];
+    } else {
+      const { searchTerms, category, industry } = route.params;
+      return [searchTerms, category, industry];
+    }
+  }, []);
 
   useEffect(() => {
     fetchProducts();
-  }, [searchTerms, selectedId]);
+  }, [searchTerm, selectedId]);
 
   const fetchProducts = async () => {
     try {
       const priceType = selectedId === "1" ? "price" : "negotiable";
-      let query = searchTerms || priceType;
-      const data = await getJsonApi(`productPage/${query}`);
+      // let query = searchTerm || priceType;
+      // const searchTerms = ['tractor', 'Farm Equipement', 'agriculture'];
 
-      setProducts(data.data.products);
+      const query = searchTerm
+        .map((term) => `searchTerm=${encodeURIComponent(term)}`)
+        .join("&");
+      const data = await getJsonApi(`productPage?${query}`);
+
+      console.log("@data :", data);
+      setProducts(data.data?.products[0]?.productsWithFiles);
+      setStateWithDistricts(data.data?.products[0]?.location);
       setOriginalProducts(data.data.products); // 👈 Save full copy here
     } catch (error) {
       console.error(error);
@@ -203,6 +172,7 @@ export default function ProductList() {
   ];
   const toggleFilter = (filter) =>
     setActiveFilter(activeFilter === filter ? null : filter);
+  // console.log(produ)
   return (
     <ScrollView>
       <SafeAreaView>
@@ -227,175 +197,50 @@ export default function ProductList() {
             </View>
           )}
         </View>
+        {!screen && !isOpen && (
+          <Pressable onPress={() => setIsOpen(!isOpen)}>
+            <Octicons
+              name="filter"
+              size={24}
+              color="black"
+              className="ml-2 mt-2"
+            />
+          </Pressable>
+        )}
+
         <View style={{ zIndex: -1 }}>
           <View className="flex flex-row px-3 rounded-sm mt-6 mb-4  ">
             {/* Sidebar Filter */}
-            {(width >= 1024 || isOpen) && (
+            {(width >= 1024 || toggleFilter) && (
               <View
-                className={`flex-row bg-yellow-500 p-4 ${
-                  width < 1024 ? "absolute  h-screen w-[90%]" : ""
-                } rounded-md shadow-md`}
-                style={{ zIndex: -1 }}
+                className={`${width < 1024 ? "absolute z-50 w-[90%]" : ""}`}
               >
-                {/* Left Column: Filter Tabs */}
-                <View
-                  className={` ${width < 1024 ? "w-[100px]" : "w-[150px]"}`}
-                  style={{ zIndex: -1 }}
-                >
-                  {filters.map((filter, key) => (
-                    <Pressable
-                      key={key}
-                      onPress={() => toggleFilter(filter)}
-                      className={`p-2 mb-2 rounded-sm  ${
-                        activeFilter === filter ? "bg-red-500" : "bg-gray-200"
-                      }`}
-                    >
-                      <Text
-                        className={`font-semibold ${
-                          activeFilter === filter ? "text-white" : "text-black"
-                        }`}
-                      >
-                        {filter}
-                      </Text>
-                    </Pressable>
-                  ))}
-                </View>
-
-                {/* Right Column: Filter Details */}
-                <View className="w-[272px] pl-4">
-                  {activeFilter === "Location" && (
-                    <View className="h-96">
-                      <View
-                        className={`flex ${
-                          width < 1024 ? "flex-col" : "flex-row"
-                        } items-center justify-between mt-2`}
-                      >
-                        <Text className="font-semibold text-base mb-2 text-red-500">
-                          Select State
-                        </Text>
-                        <View className="flex-row items-center mb-3">
-                          <Checkbox
-                            status={otherThanIndia ? "checked" : "unchecked"}
-                            onPress={() => setOtherThanIndia(!otherThanIndia)}
-                            color="#EF4444"
-                          />
-                          <Text className="ml-2 text-base">
-                            Other than India
-                          </Text>
-                        </View>
-                      </View>
-                      {/* Show state selection only if 'Other than India' is not checked */}
-                      {!otherThanIndia && (
-                        <>
-                          <ScrollView className="h-[150px]">
-                            {Object.keys(statesWithDistricts).map((state) => (
-                              <Pressable
-                                key={state}
-                                onPress={() => handleStateClick(state)}
-                                className={`p-2 rounded-sm mb-1 ${
-                                  selectedState === state
-                                    ? "bg-gray-300"
-                                    : "bg-gray-100"
-                                }
-                                 ${width < 1024 ? "w-[200px]" : "w-[300px]"}
-                                `}
-                              >
-                                <Text className="text-base">{state}</Text>
-                              </Pressable>
-                            ))}
-                          </ScrollView>
-
-                          {selectedDistricts?.length > 0 && (
-                            <>
-                              <Divider className="my-3" />
-                              <Text className="font-semibold text-lg text-red-500">
-                                Districts in {selectedState}
-                              </Text>
-                              <ScrollView className="max-h-[100px] mt-2">
-                                {selectedDistricts.map((district) => (
-                                  <Text
-                                    key={district}
-                                    className="text-base text-gray-700"
-                                  >
-                                    • {district}
-                                  </Text>
-                                ))}
-                              </ScrollView>
-                            </>
-                          )}
-                        </>
-                      )}
-                    </View>
-                  )}
-
-                  {activeFilter === "Price" && (
-                    <View>
-                      <Text className="font-semibold text-lg text-red-500 mb-2">
-                        Price Range
-                      </Text>
-                      <View className="flex flex-col gap-4 mb-3">
-                        <TextInput
-                          value={storePrice.fromPrice}
-                          onChangeText={(text) => handleFromPriceChange(text)}
-                          placeholder="From"
-                          keyboardType="numeric"
-                          className="border-2 w-full h-10 rounded-sm px-3 border-gray-300"
-                        />
-                        <TextInput
-                          value={storePrice.toPrice}
-                          onChangeText={(text) => handleToPriceChange(text)}
-                          placeholder="To"
-                          keyboardType="numeric"
-                          className="border-2 w-full h-10 rounded-sm px-3 border-gray-300"
-                        />
-                      </View>
-
-                      <Text className="text-base font-medium mb-1 mt-4">
-                        Suggestions:
-                      </Text>
-                      <View className="flex-row flex-wrap gap-2 mt-4">
-                        {priceSuggestions.map((p) => (
-                          <Pressable onPress={() => {}}>
-                            <Text
-                              key={p}
-                              className="bg-gray-200 px-3 py-1 rounded-full text-sm cursor-pointer"
-                            >
-                              ₹ {p}
-                            </Text>
-                          </Pressable>
-                        ))}
-                      </View>
-                    </View>
-                  )}
-
-                  {activeFilter === "Price Type" && (
-                    <View>
-                      <Text className="font-semibold text-lg text-red-500 mb-2">
-                        Select Price Type
-                      </Text>
-                      <RadioGroup
-                        radioButtons={radioButtonData}
-                        onPress={setSelectedPriceType}
-                        selectedId={selectedPriceType}
-                        layout="row"
-                      />
-                    </View>
-                  )}
-
-                  {activeFilter === "Brand" && (
-                    <View>
-                      <Text className="font-semibold text-lg text-red-500 mb-2">
-                        Brand Name
-                      </Text>
-                      <TextInput
-                        value={selectedBrand}
-                        onChangeText={handleBrandChange}
-                        placeholder="Enter brand"
-                        className="border-2 border-gray-300 h-10 w-full rounded-sm px-3"
-                      />
-                    </View>
-                  )}
-                </View>
+                <FilterComponent
+                  page="machine"
+                  radioButtonData={radioButtonData}
+                  setSelectedPriceType={setSelectedPriceType}
+                  selectedPriceType={selectedPriceType}
+                  // industries={industries}
+                  // categories={categories}
+                  location={statesWithDistricts}
+                  selectedState={selectedState}
+                  setSelectedState={setSelectedState}
+                  selectedDistrict={selectedDistrict}
+                  setSelectedDistrict={setSelectedDistrict}
+                  ProductList={ProductList}
+                  priceSuggestions={priceSuggestions}
+                  storePrice={storePrice}
+                  // selectedIndustry={selectedIndustry}
+                  // setSelectedIndustry={setSelectedIndustry}
+                  // selectedCategory={selectedCategory}
+                  // setSelectedCategory={setSelectedCategory}
+                  // selectedSubCategory={selectedSubCategory}
+                  // setSelectedSubCategory={setSelectedSubCategory}
+                  // selectedServices={selectedServices}
+                  // setSelectedServices={setSelectedServices}
+                  // selectedRating={selectedRating}
+                  // setSelectedRating={setSelectedRating}
+                />
               </View>
             )}
 
@@ -403,16 +248,6 @@ export default function ProductList() {
             <ScrollView
               className={`${isOpen ? "w-[80%]" : "w-full"} mb-4 transition-all`}
             >
-              {!screen && !isOpen && (
-                <Pressable
-                  onPress={() => setIsOpen(true)}
-                  className="flex flex-row"
-                >
-                  <Icon name="filter" size={30} color="black" />
-                  <Text className="mt-2 ms-2">Filter</Text>
-                </Pressable>
-              )}
-
               <View
                 className="grid gap-4 mt-2 px-4"
                 style={{

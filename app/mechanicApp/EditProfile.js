@@ -36,6 +36,7 @@ const EditProfile = ({
   subCategories,
   setSubCategories,
   page,
+  setStep,
 }) => {
   const toast = useToast();
   const { getJsonApi, pathchApi } = useApi();
@@ -93,7 +94,8 @@ const EditProfile = ({
         const data = await getJsonApi(
           `CategoryPage/${mechanicDetails.industry}/sell`
         );
-        setCategorySuggestion(data.data);
+        console.log("category suggestion", data);
+        setCategorySuggestion(data.data.categoryNames);
       }
     } catch (err) {
       console.log(err);
@@ -151,6 +153,7 @@ const EditProfile = ({
 
     setMechanicDetails(updatedDetails);
     setModalVisible(false);
+    setStep(1);
 
     if (page === "profile") {
       try {
@@ -329,7 +332,11 @@ const EditProfile = ({
               selectedCode={selectedCode}
               setSelectedCode={setSelectedCode}
             />
-            <Location location={location} setLocation={setLocation} />
+            {
+              <View className="z-50">
+                <Location location={location} setLocation={setLocation} />
+              </View>
+            }
 
             <Pressable
               onPress={handleSubmit}

@@ -35,19 +35,19 @@ const LandingPage = () => {
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.brand}>Machine Street</Text>
-          <View style={styles.navLinks}>
+          {/* <View style={styles.navLinks}>
             <Text style={styles.navLink} className="p-2">
               Contact
-            </Text>
-            <Image
+            </Text> */}
+            {/* <Image
               source={{
                 uri: "https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg",
               }}
               style={{ width: 120, height: 40 }}
               resizeMode="contain"
-            />
+            /> */}
             {/* <Text className='p-2' style={styles.border}>Get PlayStore</Text> */}
-          </View>
+          {/* </View> */}
         </View>
 
         {/* Hero Section */}
@@ -78,7 +78,7 @@ const LandingPage = () => {
                     if (Platform.OS) {
                       router.push("/mechanicApp/MechanicList_2");
                     } else {
-                      navigation.navigate("MechanicProfiles");
+                      navigation.navigate("Profile");
                     }
                   }}
                 >
@@ -126,7 +126,7 @@ const LandingPage = () => {
               <Step
                 icon="🤝"
                 title="Connect"
-                description="Contact mechanics directly and get your job started."
+                description="Contact mechanics directly and get your job Done."
               />
             </View>
           </View>

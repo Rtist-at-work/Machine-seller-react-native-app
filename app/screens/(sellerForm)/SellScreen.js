@@ -26,7 +26,8 @@ import { router } from "expo-router";
 // import Location from "./Location";
 import Mobile from "../(auth)/(SignIn)/Mobile";
 import Location from "../(Homepage)/Location";
-// import DropDownPicker from "react-native-dropdown-picker";
+import DropDownPicker from "react-native-dropdown-picker";
+import useGeoLocation from "@/app/hooks/GeoLocation";
 
 export default function SellScreen() {
   const { width } = useWindowDimensions();
@@ -39,6 +40,7 @@ export default function SellScreen() {
     region: "",
     district: "",
   });
+  const { geoCoords, address } = useGeoLocation();
 
   const [selectedImage, setSelectedImage] = useState([]);
   const [selectedVideo, setSelectedVideo] = useState([]);
@@ -51,6 +53,7 @@ export default function SellScreen() {
   const [description, setDescription] = useState("");
 
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [selectedCode, setSelectedCode] = useState("+91");
 
   const [condition, setCondition] = useState("");
   const [imageModal, setImageModal] = useState(false);
@@ -65,12 +68,12 @@ export default function SellScreen() {
   const [selectedYear, setSelectedYear] = useState("");
   const [openYear, setOpenYear] = useState(false);
 
-  const [openState, setOpenState] = useState(false);
-  const [openDistrict, setOpenDistrict] = useState(false);
-  const [selectedState, setSelectedState] = useState(null);
-  const [selectedDistrict, setSelectedDistrict] = useState(null);
-  const [openCountry, setOpenCountry] = useState(false);
-  const [selectedCountry, setSelectedCountry] = useState("India");
+  // const [openState, setOpenState] = useState(false);
+  // const [openDistrict, setOpenDistrict] = useState(false);
+  // const [selectedState, setSelectedState] = useState(null);
+  // const [selectedDistrict, setSelectedDistrict] = useState(null);
+  // const [openCountry, setOpenCountry] = useState(false);
+  // const [selectedCountry, setSelectedCountry] = useState("India");
 
   // search COmponenets
   const [searchValues, setSearchValues] = useState({
@@ -99,12 +102,13 @@ export default function SellScreen() {
   // fetching categories
 
   const getCategory = async () => {
+    console.log("searchValues.industry", searchValues.industry);
     try {
       if (searchValues.industry.length > 0) {
         const data = await getJsonApi(
           `CategoryPage/${searchValues.industry}/sell`
         );
-        setCategories(data.data);
+        setCategories(data.data.categoryNames);
         console.log("data :", data);
       }
     } catch (err) {
@@ -147,6 +151,7 @@ export default function SellScreen() {
   };
 
   // sending data to backend
+  console.log("industries :", selectedCode);
 
   const sentData = async (e) => {
     e.preventDefault();
@@ -196,11 +201,11 @@ export default function SellScreen() {
     formData.append("price", price);
     formData.append("priceType", priceType);
     formData.append("description", description);
-    formData.append("mobile", phoneNumber.trim("0"));
+    formData.append("countryCode", selectedCode);
+    formData.append("number", phoneNumber.trim("0"));
     formData.append("condition", condition);
     formData.append("yearOfMake", selectedYear);
     formData.append("location", JSON.stringify(location));
-
     // Append all images
     selectedImage.forEach((image) => {
       formData.append("images", image.file);
@@ -224,13 +229,13 @@ export default function SellScreen() {
       //   }
       // );
       if (response.status === 201 || response.status === 200) {
-        Toast.show({
-          type: "success",
-          text1: "Success",
-          text2: response.data.message || "Data uploaded successfully!",
-          position: "top",
-          topOffset: 0,
-        });
+        // Toast.show({
+        //   type: "success",
+        //   text1: "Success",
+        //   text2: response.data.message || "Data uploaded successfully!",
+        //   position: "top",
+        //   topOffset: 0,
+        // });
 
         setTimeout(() => {
           setSearchValues({
@@ -252,28 +257,29 @@ export default function SellScreen() {
           setPhoneNumber("");
           setSelectedVideo([]);
         }, 1000);
-      } else {
-        Toast.show({
-          type: "error",
-          text1: "Upload Failed",
-          text2: "Something went wrong. Please try again.",
-          position: "top",
-          topOffset: 0,
-        });
       }
+      // else {
+      //   // Toast.show({
+      //   //   type: "error",
+      //   //   text1: "Upload Failed",
+      //   //   text2: "Something went wrong. Please try again.",
+      //   //   position: "top",
+      //   //   topOffset: 0,
+      //   // });
+      // }
     } catch (error) {
       // if(error.error.name === 'TokenExpiredError'){
       //   console.log(error.error.name)
       //   await AsyncStorage.removeItem('userToken')
       //   router.push('/(Screens)/(LogIn)/LogIn')
       // }
-      Toast.show({
-        type: "error",
-        text1: "Error",
-        text2: "Failed to send data. Please check your connection.",
-        position: "top",
-        topOffset: 0,
-      });
+      // Toast.show({
+      //   type: "error",
+      //   text1: "Error",
+      //   text2: "Failed to send data. Please check your connection.",
+      //   position: "top",
+      //   topOffset: 0,
+      // });
       // console.log("Error in sending data:", error.response.data.message);
     }
   };
@@ -397,8 +403,8 @@ export default function SellScreen() {
           <Text className="text-lg font-semibold text-teal-600 mt-6">
             Year of Make:
           </Text>
-          <View className="border border-gray-300 h-[50] rounded-lg mt-4 justify-center px-2">
-            {/* <Picker
+          {/* <View className="border border-gray-300 h-[50] rounded-lg mt-4 justify-center px-2"> */}
+          {/* <Picker
               className="outline-none cursor-pointer h-full"
               selectedValue={selectedYear}
               onValueChange={(itemValue) => setSelectedYear(itemValue)}
@@ -408,29 +414,32 @@ export default function SellScreen() {
                 <Picker.Item key={year} label={year.toString()} value={year} />
               ))}
             </Picker> */}
+          {/* </View> */}
+          <View style={{ zIndex: 5000 }}>
+            <DropDownPicker
+              open={openYear}
+              value={selectedYear}
+              items={yearItems}
+              setOpen={setOpenYear}
+              setValue={setSelectedYear}
+              setItems={setYearItems}
+              placeholder="Select Year"
+              listMode="SCROLLVIEW"
+              style={{
+                borderColor: "#D1D5DB",
+                height: 50,
+                borderRadius: 8,
+                paddingHorizontal: 8,
+              }}
+              dropDownContainerStyle={{
+                borderColor: "#D1D5DB",
+                backgroundColor: "white",
+                zIndex: 5000, // Needed for Android
+              }}
+              textStyle={{ color: "#000" }}
+              placeholderStyle={{ color: "#9CA3AF" }}
+            />
           </View>
-          {/* <DropDownPicker
-            open={openYear}
-            value={selectedYear}
-            items={yearItems}
-            setOpen={setOpenYear}
-            setValue={setSelectedYear}
-            setItems={setYearItems}
-            placeholder="Select Year"
-            listMode="SCROLLVIEW"
-            style={{
-              borderColor: "#D1D5DB",
-              height: 50,
-              borderRadius: 8,
-              paddingHorizontal: 8,
-            }}
-            dropDownContainerStyle={{
-              borderColor: "#D1D5DB",
-              backgroundColor: "White",
-            }}
-            textStyle={{ color: "#000" }}
-            placeholderStyle={{ color: "#9CA3AF" }}
-          /> */}
 
           {/* Price */}
 
@@ -497,8 +506,8 @@ export default function SellScreen() {
             <Mobile
               // dropdownVisible={dropdownVisible}
               // setDropdownVisible={setDropdownVisible}
-              // selectedCode={selectedCode}
-              // setSelectedCode={setSelectedCode}
+              selectedCode={selectedCode}
+              setSelectedCode={setSelectedCode}
               phoneNumber={phoneNumber}
               setPhoneNumber={setPhoneNumber}
               // searchQuery={searchQuery}
@@ -538,7 +547,9 @@ const SearchComponent = ({
 
   const filteredData =
     data?.length > 0
-      ? data.filter((item) => item.toLowerCase().includes(value.toLowerCase()))
+      ? data.filter((item) =>
+          item?.toLowerCase().includes(value?.toLowerCase())
+        )
       : data;
 
   useEffect(() => {

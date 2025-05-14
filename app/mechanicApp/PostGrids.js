@@ -60,14 +60,14 @@ const VideoGridItem = ({ videoId, onPostPress, index }) => {
       onPress={() => onPostPress(index)}
       className="flex justify-center items-center h-full w-full"
     >
-      <View>
+      <View className="h-full w-full">
         <VideoView
           player={player}
           style={{ width: "100%", height: "100%" }}
           controls={false}
           allowsFullscreen={false}
           allowsPictureInPicture={false}
-          resizeMode="cover"
+          resizeMode="contain"
         />
       </View>
     </Pressable>
