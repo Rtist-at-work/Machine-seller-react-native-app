@@ -67,7 +67,7 @@ export default function BannerUpload() {
     try {
       const token = await AsyncStorage.getItem("userToken");
       const result = await getJsonApi("adminApproval/getbanners", token);
-
+console.log('@result :', result)
       if (result.status === 200) {
         const bannerList = result.data.result || [];
         setBanner(bannerList);
@@ -145,6 +145,8 @@ export default function BannerUpload() {
 
   // ---------------- Render ----------------
   return (
+    <ScrollView>
+
     <View className="items-center">
       <Text className="text-xl font-bold my-4">Banner Upload</Text>
 
@@ -183,7 +185,7 @@ export default function BannerUpload() {
                   style={{
                     width: width < 768 ? width * 0.9 : 300,
                     height: 200,
-                    borderRadius: 10,
+                    // borderRadius: 40 ,
                     resizeMode: "cover",
                   }}
                 />
@@ -220,6 +222,7 @@ export default function BannerUpload() {
           style={{ marginTop: 20 }}
         />
       ) : banner.length > 0 ? (
+        <View >
         <ImageSlider
           images={banner}
           onDelete={handleDelete}
@@ -229,12 +232,15 @@ export default function BannerUpload() {
             // Optional change button logic
             console.log("Change image at index:", index);
           }}
+          
         />
+        </View>
       ) : (
         <Text style={{ marginTop: 20, fontStyle: "italic", color: "gray" }}>
           No banners found. Please upload banners.
         </Text>
       )}
     </View>
+    </ScrollView>
   );
 }

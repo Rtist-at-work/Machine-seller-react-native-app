@@ -5,13 +5,13 @@ import useConversation from "@/app/stateManagement/useConversation";
 
 const User = ({ allUser, setUserClick, setSearchKey, searchKey }) => {
   const { selectedConversation, setSelectedConversation } = useConversation();
-console.log(selectedConversation)
+console.log('allUser :', allUser)
   // Filter users based on searchKey
   const filteredUsers = allUser.filter(
     (user) =>
       user.username?.toLowerCase().includes(searchKey.toLowerCase()) ||
       user.email?.toLowerCase().includes(searchKey.toLowerCase()) ||
-      user.mobile?.includes(searchKey) // Assuming mobile is a string
+      user.mobile?.number?.includes(searchKey) // Assuming mobile is a string
   );
 
   return (

@@ -17,6 +17,8 @@ const TypeSend = () => {
   const { selectedConversation } = useConversation();
   const { postJsonApi } = useApi();
 
+  console.log("selectedCnversation :", selectedConversation)
+
   const postMsg = async () => {
     if (!msg.trim()) return; // Prevent sending empty messages
 

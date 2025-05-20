@@ -57,6 +57,7 @@ const Login = () => {
       });
 
       return;
+      
     }
 
     try {
@@ -67,8 +68,11 @@ const Login = () => {
       if (response && response.status === 200) {
         await AsyncStorage.setItem("userToken", response.data.token);
         await AsyncStorage.setItem("role", response.data.role);
+        await AsyncStorage.setItem("qr", response.data.qr);
+
 
         if (Platform.OS === "web") {
+        // navigation.navigate('MechanicProfiles')
           router.replace("/mechanicApp/MechanicList_2");
         } else {
           navigation.goBack();

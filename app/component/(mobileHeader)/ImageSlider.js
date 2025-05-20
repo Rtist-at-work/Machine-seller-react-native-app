@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,9 +6,9 @@ import {
   StyleSheet,
   TouchableOpacity,
   Dimensions,
+  Platform,
+  SafeAreaView,
 } from "react-native";
-
-const screenWidth = Dimensions.get("window").width;
 
 const ImageSlider = ({
   images,
@@ -17,7 +17,20 @@ const ImageSlider = ({
   currentIndex,
   setCurrentIndex,
 }) => {
-  // If no images are available
+  const [dynamicWidth, setDynamicWidth] = useState(Dimensions.get("window").width);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setDynamicWidth(Dimensions.get("window").width);
+    };
+    const subscription = Dimensions.addEventListener("change", handleResize);
+    return () => subscription.remove();
+  }, []);
+
+  // Responsive sizes
+  const imageWidth = Platform.OS === "web" ? dynamicWidth * 0.6 : dynamicWidth * 0.95;
+  const arrowSize = dynamicWidth > 600 ? 40 : 32;
+
   if (!images || images.length === 0) {
     return (
       <View style={styles.emptyContainer}>
@@ -26,123 +39,128 @@ const ImageSlider = ({
     );
   }
 
-  // Navigation logic
   const goLeft = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex((prev) => prev - 1);
-    }
+    if (currentIndex > 0) setCurrentIndex((prev) => prev - 1);
   };
-
   const goRight = () => {
-    if (currentIndex < images.length - 1) {
-      setCurrentIndex((prev) => prev + 1);
-    }
+    if (currentIndex < images.length - 1) setCurrentIndex((prev) => prev + 1);
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.imageContainer}>
-        <Image
-          source={{
-            uri: `data:image/jpeg;base64,${images[currentIndex]?.bannerImages}`,
-          }}
-          style={styles.image}
-          resizeMode="cover"
-        />
-
-        {/* Buttons inside image */}
-        <View style={styles.buttonContainer}>
-          {/* Optional Change button */}
-          {/* <TouchableOpacity
-            onPress={() => onChange(currentIndex)}
-            style={styles.actionButton}
-          >
-            <Text style={styles.buttonText}>Change</Text>
-          </TouchableOpacity> */}
-
+    <SafeAreaView style={styles.safeArea}>
+      <View style={[styles.container, { width: imageWidth }]}>
+        {/* Image with Delete Button */}
+        <View style={styles.imageContainer}>
+          <Image
+            source={{
+              uri: `data:image/jpeg;base64,${images[currentIndex]?.bannerImages}`,
+            }}
+            style={styles.image}
+            resizeMode="cover"
+          />
+          {/* Delete Button at Top Right */}
           <TouchableOpacity
             onPress={() => onDelete(images[currentIndex]._id)}
-            style={[styles.actionButton, { backgroundColor: "#ff4d4d" }]}
+            style={styles.deleteButton}
           >
-            <Text style={styles.buttonText}>Delete</Text>
+            <Text style={styles.deleteButtonText}>Delete</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Navigation Arrows */}
+        <View style={styles.navigation}>
+          <TouchableOpacity onPress={goLeft} disabled={currentIndex === 0}>
+            <Text
+              style={[
+                styles.arrow,
+                { fontSize: arrowSize },
+                currentIndex === 0 && styles.disabled,
+              ]}
+            >
+              ◀
+            </Text>
+          </TouchableOpacity>
+          <Text style={styles.indexText}>
+            {currentIndex + 1} / {images.length}
+          </Text>
+          <TouchableOpacity
+            onPress={goRight}
+            disabled={currentIndex === images.length - 1}
+          >
+            <Text
+              style={[
+                styles.arrow,
+                { fontSize: arrowSize },
+                currentIndex === images.length - 1 && styles.disabled,
+              ]}
+            >
+              ▶
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
-
-      {/* Arrow Controls */}
-      <View style={styles.navigation}>
-        <TouchableOpacity onPress={goLeft} disabled={currentIndex === 0}>
-          <Text style={[styles.arrow, currentIndex === 0 && styles.disabled]}>
-            ◀
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={goRight}
-          disabled={currentIndex === images.length - 1}
-        >
-          <Text
-            style={[
-              styles.arrow,
-              currentIndex === images.length - 1 && styles.disabled,
-            ]}
-          >
-            ▶
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
 export default ImageSlider;
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   container: {
     alignItems: "center",
     marginTop: 20,
   },
   imageContainer: {
-    width: screenWidth * 0.9,
+    width: "100%",
     aspectRatio: 16 / 9,
-    position: "relative",
-    borderRadius: 10,
+    borderRadius: 12,
     overflow: "hidden",
     backgroundColor: "#ccc",
+    position: "relative",
+    marginBottom: 16,
   },
   image: {
     width: "100%",
     height: "100%",
   },
-  buttonContainer: {
+  deleteButton: {
     position: "absolute",
-    bottom: 10,
-    left: 10,
-    flexDirection: "row",
-    gap: 10,
-  },
-  actionButton: {
-    backgroundColor: "#007AFF",
-    padding: 8,
+    top: 8,
+    right: 8,
+    backgroundColor: "#ff4d4d",
     borderRadius: 5,
-    marginRight: 10,
+    padding: 8,
+    zIndex: 2,
+    elevation: 2,
   },
-  buttonText: {
+  deleteButtonText: {
     color: "#fff",
     fontWeight: "bold",
+    fontSize: 18,
   },
   navigation: {
     flexDirection: "row",
+    alignItems: "center",
     justifyContent: "space-between",
-    width: screenWidth * 0.6,
-    marginTop: 10,
+    width: "100%",
+    paddingHorizontal: 10,
   },
   arrow: {
-    fontSize: 30,
     color: "#000",
+    paddingHorizontal: 10,
   },
   disabled: {
     color: "#aaa",
+  },
+  indexText: {
+    fontSize: 16,
+    color: "#333",
+    fontWeight: "500",
   },
   emptyContainer: {
     alignItems: "center",

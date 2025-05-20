@@ -1,7 +1,14 @@
 import React from "react";
 import { View, Text, Pressable, Platform } from "react-native";
 
-const OperationSwitcher = ({ setSelected, selected, setCat, setSelectedCategory }) => {
+const OperationSwitcher = ({
+  setSelected,
+  selected,
+  setSelectedCategory,
+  setIndustry,
+  setCategory,
+  setSubCategories,
+}) => {
   return (
     <View
       className={`flex flex-row justify-around h-full w-[90%] mx-auto mt-4`}
@@ -9,9 +16,11 @@ const OperationSwitcher = ({ setSelected, selected, setCat, setSelectedCategory 
       <Pressable
         className="w-[50%] flex justify-center items-center py-4 relative"
         onPress={() => {
-          setSelectedCategory("")
-          setCat(["",[]]);
-          setSelected("add")
+          setIndustry("");
+          setCategory("");
+          setSubCategories([{ name: "", services: [""] }]);
+          setSelectedCategory("");
+          setSelected("add");
         }}
       >
         <Text

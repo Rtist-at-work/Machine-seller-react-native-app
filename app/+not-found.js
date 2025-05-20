@@ -4,7 +4,7 @@ import { View } from 'react-native'
 const notfound = () => {
   return (
     <View>
-      notfound
+      notfound 
     </View>
   )
 }

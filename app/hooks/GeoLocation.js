@@ -66,7 +66,12 @@ const useGeoLocation = () => {
       const response = await fetch(
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
       );
+      console.log('response :', response);
+
       const data = await response.json();
+
+      console.log('location :', data);
+
 
       if (data.address) {
         setAddress({

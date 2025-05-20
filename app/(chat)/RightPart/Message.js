@@ -5,7 +5,7 @@ import useGetMessages from "@/app/context/useGetMessages";
 import useConversation from "@/app/stateManagement/useConversation";
 import useGetSocketMessage from "@/app/context/useGetSocketMessage";
 const Message = () => {
-  const { messages } = useGetMessages(); // Get messages from API
+  const { messages, userNotFound } = useGetMessages(); // Get messages from API
   const { selectedConversation } = useConversation();
   let prevDate;
   const today = new Date().toLocaleDateString("en-GB", {
@@ -31,7 +31,12 @@ const Message = () => {
             month: "short",
           });
 
-          let displayDate = msgDate === today ? "Today" : msgDate === yesterdayStr ? "Yesterday" : msgDate;
+          let displayDate =
+            msgDate === today
+              ? "Today"
+              : msgDate === yesterdayStr
+              ? "Yesterday"
+              : msgDate;
 
           const showDate = msgDate !== prevDate;
           prevDate = msgDate;
@@ -44,10 +49,8 @@ const Message = () => {
                 msg.receiverId === selectedConversation ? "user" : "other"
               }
               createdAt={showDate ? displayDate : ""}
-              time = {msg.createdAt}
-
+              time={msg.createdAt}
               seen={msg.seen}
-
             />
           );
         })

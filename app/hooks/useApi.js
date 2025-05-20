@@ -8,8 +8,7 @@ const useApi = () => {
   const handleRequest = async (request, path, token) => {
     try {
       const response = await request();
-      // console.log(response)
-      // 🟢 Show success toast if response has a message
+
       const successMessage =
         response?.data?.message || response?.data || "Request successful";
       if (typeof successMessage === "string") {

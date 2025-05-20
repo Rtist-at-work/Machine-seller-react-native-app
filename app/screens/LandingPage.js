@@ -75,11 +75,8 @@ const LandingPage = () => {
                 <TouchableOpacity
                   style={styles.primaryBtn}
                   onPress={() => {
-                    if (Platform.OS) {
-                      router.push("/mechanicApp/MechanicList_2");
-                    } else {
-                      navigation.navigate("Profile");
-                    }
+                    // navigation.navigate('MechanicProfiles')
+                    router.push('/mechanicApp/MechanicList_2')
                   }}
                 >
                   <Text style={styles.primaryBtnText}>Get Started</Text>

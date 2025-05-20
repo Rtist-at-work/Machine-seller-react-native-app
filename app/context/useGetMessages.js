@@ -7,6 +7,7 @@ import axios from "axios";
 const useGetMessages = () => {
   const { messages, setMessage, selectedConversation } = useConversation();
   const { getJsonApi } = useApi();
+  const [userNotFound,setUserNotFound] = useState(false)
   console.log(selectedConversation, setMessage)
 
   useEffect(() => {
@@ -18,7 +19,11 @@ const useGetMessages = () => {
             `message/get/${selectedConversation}`,
             token
           );
-          console.log(res)
+          console.log("response:", res)
+          console.log("response status :", res.status)
+          if(res.status===404){
+            setUserNotFound(true)
+          }
           setMessage(res.data);
         } catch (error) {
           console.log("Error in getting messages:", error);
@@ -29,7 +34,7 @@ const useGetMessages = () => {
     getMessages();
   }, [selectedConversation]);
 
-  return {  messages };
+  return {  messages,userNotFound };
 };
 
 export default useGetMessages;

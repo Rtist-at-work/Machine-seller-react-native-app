@@ -10,7 +10,7 @@ import {
 
 const Product = ({ products, setIsModalVisible, setCurrentIndex, status }) => {
   return (
-    <ScrollView>
+    <ScrollView showsHorizontalScrollIndicator={true}>
       <View
         className="grid gap-4 mt-2 px-4"
         style={{
@@ -41,7 +41,7 @@ const Product = ({ products, setIsModalVisible, setCurrentIndex, status }) => {
                         <Image
                           className="rounded-md"
                           source={{
-                            uri: `data:image/jpeg;base64,${product.machineImages[0]}`,
+                            uri: `data:image/jpeg;base64,${product.machineImages[0][0]}`,
                           }}
                           style={{
                             width: "100%",

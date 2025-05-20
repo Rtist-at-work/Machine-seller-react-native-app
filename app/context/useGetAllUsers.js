@@ -7,17 +7,24 @@ import axios from "axios";
 function useGetAllUsers() {
   const [allUsers, setAllUsers] = useState([]);
   const { selectedConversation } = useConversation();
-  const {getJsonApi} = useApi();
+  const [userNotFound, setUserNotFound] = useState(false);
+
+  const { getJsonApi } = useApi();
   // const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const getUsers = async () => {
       // setLoading(true);
       try {
-        const token = await AsyncStorage.getItem("userToken");  // Retrieve token from AsyncStorage
-        console.log(token + "bhbh")
-        const response = await getJsonApi(`message/getUsers/${selectedConversation}`,token)
-        console.log(response)
+        const token = await AsyncStorage.getItem("userToken"); // Retrieve token from AsyncStorage
+        console.log(token + "bhbh");
+        const response = await getJsonApi(
+          `message/getUsers/${selectedConversation}`,
+          token
+        );
+        if (response.status === 404) {
+          setUserNotFound(true);
+        }
         setAllUsers(response.data);
       } catch (error) {
         console.log("Error in useGetAllUsers: " + error);

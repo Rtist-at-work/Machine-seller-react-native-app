@@ -253,13 +253,13 @@ export default function All() {
           </Link>
 
           {/* Location Link */}
-          <Link href={`/screens/LocationBased?priceType=negotiable`} asChild>
+          {/* <Link href={`/screens/LocationBased?priceType=negotiable`} asChild>
             <Pressable className="flex-1">
               <Text className="text-center text-TealGreen text-sm font-semibold md:text-lg md:font-bold">
                 Location
               </Text>
             </Pressable>
-          </Link>
+          </Link> */}
 
           {/* Favourite */}
           <Pressable

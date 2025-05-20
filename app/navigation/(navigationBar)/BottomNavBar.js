@@ -10,11 +10,11 @@ import WishlistScreen from "@/app/screens/(wishlists)/WishlistScreen";
 import ProfileStack from "./ProfileStack";
 import MechanicList_2 from "@/app/mechanicApp/MechanicList_2";
 import { color } from "@rneui/base";
-import ProfilePage from "@/app/screens/(profile)/ProfilePage";
+// import ProfilePage from "@/app/screens/(profile)/ProfilePage";
 import EditProfile from "@/app/mechanicApp/EditProfile";
-import MechanicStack from "../MechanicStack";
+import MechanicStack from "./MechanicStack";
 import LandingPage from "@/app/screens/LandingPage";
-import MechanicProfileStack from "../MechanicProfileStack";
+import MechanicProfileStack from "./MechanicProfileStack";
 
 const Tab = createBottomTabNavigator();
 
@@ -128,11 +128,7 @@ function BottomNavBar() {
         component={MechanicStack}
         options={{
           tabBarIcon: ({ color }) => (
-            // <MaterialCommunityIcons
-            //   name="account-hard-hat"
-            //   size={30}
-            //   color="#000"
-            // />
+           
             <MaterialCommunityIcons
               name="account-cog"
               size={30}

@@ -11,8 +11,7 @@ export const FileUploadProvider = ({ children }) => {
   const [selectedMedia, setSelectedMedia] = useState([]);
 
   const pickMedia = async (type, page) => {
-    console.group(type)
-    console.group(page)
+
     if (Platform.OS === "android" && Platform.Version < 29) {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== "granted") {

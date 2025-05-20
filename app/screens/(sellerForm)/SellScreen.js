@@ -104,7 +104,13 @@ export default function SellScreen() {
   const getCategory = async () => {
     console.log("searchValues.industry", searchValues.industry);
     try {
-      if (searchValues.industry.length > 0) {
+      const inputCategory = searchValues.industry.toLowerCase().trim();
+
+      const isValidCategory = industries.some(
+        (cat) => cat.toLowerCase().trim() === inputCategory
+      );
+
+      if (isValidCategory && inputCategory.length > 0) {
         const data = await getJsonApi(
           `CategoryPage/${searchValues.industry}/sell`
         );
@@ -115,10 +121,17 @@ export default function SellScreen() {
       console.log(err);
     }
   };
+
   const getSubCategory = async () => {
-    console.log("triggered", searchValues.category);
     try {
-      if (searchValues.category.length > 0) {
+      const inputCategory = searchValues.category.toLowerCase().trim();
+
+      const isValidCategory = categories.some(
+        (cat) => cat.toLowerCase().trim() === inputCategory
+      );
+
+      if (isValidCategory && inputCategory.length > 0) {
+        console.log("triggered");
         const data = await getJsonApi(
           `CategoryPage/subCategoryPage/${searchValues.category}/sell`
         );
@@ -133,7 +146,13 @@ export default function SellScreen() {
   // fetching makes
   const getMakes = async () => {
     try {
-      if (searchValues.category.length > 0) {
+      const inputCategory = searchValues.subcategory.toLowerCase().trim();
+
+      const isValidCategory = subCategories.some(
+        (cat) => cat.toLowerCase().trim() === inputCategory
+      );
+
+      if (isValidCategory && inputCategory.length > 0) {
         const data = await getJsonApi(
           `CategoryPage/${searchValues.subcategory}`
         );
@@ -147,6 +166,7 @@ export default function SellScreen() {
 
   // setting searchValues
   const handleChange = (key, value) => {
+    console.log("key :", key.toLowerCase())
     setSearchValues((prev) => ({ ...prev, [key]: value }));
   };
 
@@ -166,6 +186,7 @@ export default function SellScreen() {
       !priceType?.trim() ||
       !phoneNumber?.trim() ||
       !condition?.trim() ||
+      !selectedYear ||
       !String(location?.coords || "").trim() ||
       !String(location?.region || "").trim() ||
       !String(location?.country || "").trim()
@@ -241,6 +262,7 @@ export default function SellScreen() {
           setSearchValues({
             industry: "",
             category: "",
+            subcategory: "",
             make: "",
           });
           setPrice("");
@@ -248,6 +270,8 @@ export default function SellScreen() {
           setDescription("");
           setSelectedImage([]);
           setCondition("");
+          setSubCategories([]);
+          setSelectedYear("");
           setLocation({
             coords: geoCoords || "",
             country: address.country || "",
@@ -357,7 +381,7 @@ export default function SellScreen() {
               getMakes={getMakes}
               label="subCategory"
               value={searchValues.subcategory}
-              onChange={(value) => handleChange("subCategory", value)}
+              onChange={(value) => handleChange("subcategory", value)}
             />
           </View>
           <View className="z-20">
@@ -593,6 +617,7 @@ const SearchComponent = ({
               renderItem={({ item }) => (
                 <Pressable
                   onPress={() => {
+                   
                     handleChange(label.toLowerCase(), item);
                     setTimeout(() => setIsFocused(false), 200);
                   }}

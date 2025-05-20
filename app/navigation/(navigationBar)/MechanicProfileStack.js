@@ -2,9 +2,9 @@ import React, { useState, useCallback } from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
-import ProfilePage from "../screens/(profile)/ProfilePage";
-import Login from "../screens/(auth)/(login)/Login";
-import SignUp from "../screens/(auth)/(SignIn)/SignUp";
+import ProfilePage from "../../screens/(profile)/ProfilePage";
+import Login from "../../screens/(auth)/(login)/Login";
+import SignUp from "../../screens/(auth)/(SignIn)/SignUp";
 
 
 const Stack = createNativeStackNavigator();

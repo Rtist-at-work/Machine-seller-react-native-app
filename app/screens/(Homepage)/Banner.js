@@ -1,13 +1,13 @@
 import { View, Text, Image } from "react-native";
 import React, { useState, useEffect } from "react";
 
-export default function Banner() {
+export default function Banner({img}) {
   const [image, setImage] = useState(0);
-  const img = [
-    require("../../assests/machine/cone.jpg"),
-    require("../../assests/machine/machine.jpg"),
-    require("../../assests/machine/printing.jpg"),
-  ];
+  // const img = [
+  //   require("../../assests/machine/cone.jpg"),
+  //   require("../../assests/machine/machine.jpg"),
+  //   require("../../assests/machine/printing.jpg"),
+  // ];
 
   useEffect(() => {
     const intervel = setInterval(() => {
@@ -31,7 +31,7 @@ export default function Banner() {
             boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
             zIndex: 10,
           }}
-          source={img[image]}
+          source={`data:image/jpeg;base64,${img[image]}`} alt="Image"
         />
       </View>
     </View>

@@ -40,75 +40,66 @@ export default function ProductList() {
   const [originalProducts, setOriginalProducts] = useState([]);
 
   const [activeFilter, setActiveFilter] = useState(null);
-  const [selectedId, setSelectedId] = useState("1");
+  // const [selectedId, setSelectedId] = /useState("1");
   const [otherThanIndia, setOtherThanIndia] = useState(false);
   const priceSuggestions = ["500", "1000", "5000", "10000"];
-  const [selectedPriceType, setSelectedPriceType] = useState("1");
+  const [selectedPriceType, setSelectedPriceType] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [selectedState, setSelectedState] = useState("");
   const [selectedDistrict, setSelectedDistrict] = useState("");
-  const [selectedBrand, setSelectedBrand] = useState("");
+  // const [selectedBrand, setSelectedBrand] = useState("");
   const [statesWithDistricts, setStateWithDistricts] = useState([]);
-
-  // const handleStateClick = (state) => {
-  //   setSelectedState(state);
-  //   setSelectedDistricts(statesWithDistricts[state] || []);
-  // };
-
-  console.log("products :", products);
-  const [storePrice, setStorePrice] = useState({
-    fromPrice: "",
-    toPrice: "",
-  });
+  const radioButtonData = [
+    { id: "1", label: "Fixed", value: "fixed" },
+    { id: "2", label: "Negotiable", value: "negotiable" },
+  ];
+  const [selectedDistricts, setSelectedDistricts] = useState([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState("");
+  const [makes, setMakes] = useState([]);
+  const [selectedMakes, setSelectedMakes] = useState([]);
+  const [otherThanIndiaLocation, setOtherThanIndiaLocation] = useState([]);
+  let dataToMap = otherThanIndia ? otherThanIndiaLocation : statesWithDistricts;
 
   const [price, setPrice] = useState({
     fromPrice: "",
     toPrice: "",
   });
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setPrice(storePrice);
-    }, 100);
-    return () => clearTimeout(timer);
-  });
+  // filter products
 
-  useEffect(() => {
-    priceFilter();
-  }, [price]);
+  const filteredProducts = products.filter((product) => {
+    const matchesPriceType = selectedPriceType
+      ? (product?.priceType).toLowerCase().trim() ===
+        (selectedPriceType === 1 ? "fixed " : "negotiable")
+      : true;
+    const matchesPriceFrom = price.fromPrice
+      ? product.price >= Number(price.fromPrice)
+      : true;
 
-  const handleFromPriceChange = (value) => {
-    setStorePrice((prev) => ({ ...prev, fromPrice: value }));
-  };
-  const handleToPriceChange = (value) => {
-    setStorePrice((prev) => ({ ...prev, toPrice: value }));
-  };
+    const matchesPriceTo = price.toPrice
+      ? product.price <= Number(price.toPrice)
+      : true;
+    const matchesBrand =
+      selectedMakes.length > 0 ? selectedMakes.includes(product.make) : true;
 
-  const priceFilter = () => {
-    const from = parseFloat(price.fromPrice);
-    const to = parseFloat(price.toPrice);
+     const matchesState = selectedState
+      ? otherThanIndia ? product.country === selectedState : product.region === selectedState
+      : true;
 
-    const filtered = originalProducts.filter((product) => {
-      const priceCondition =
-        (!price.fromPrice || product.price >= from) &&
-        (!price.toPrice || product.price <= to);
-
-      const brandCondition = selectedBrand
-        ? product.brand.toLowerCase().includes(selectedBrand.toLowerCase())
+    const matchesDistrict =
+      selectedDistrict.length > 0
+        ? selectedDistrict.includes(otherThanIndia ? product.region : product.district)
         : true;
-
-      return priceCondition && brandCondition; // Apply both filters
-    });
-
-    setProducts(filtered); // Update the filtered products
-  };
-
-  // Filter states
-  const filters = ["Location", "Price", "Price Type", "Brand"];
-
-  // products.forEach((product) => {
-  //   console.log(product?.price, "price");
-  // });
+    return (
+      matchesPriceType &&
+      matchesPriceFrom &&
+      matchesPriceTo &&
+      matchesBrand &&
+      matchesState &&
+      matchesDistrict
+    );
+  });
 
   const searchTerm = useMemo(() => {
     if (Platform.OS === "web") {
@@ -122,23 +113,22 @@ export default function ProductList() {
 
   useEffect(() => {
     fetchProducts();
-  }, [searchTerm, selectedId]);
+  }, [searchTerm && page]);
 
   const fetchProducts = async () => {
     try {
-      const priceType = selectedId === "1" ? "price" : "negotiable";
-      // let query = searchTerm || priceType;
-      // const searchTerms = ['tractor', 'Farm Equipement', 'agriculture'];
-
       const query = searchTerm
         .map((term) => `searchTerm=${encodeURIComponent(term)}`)
         .join("&");
-      const data = await getJsonApi(`productPage?${query}`);
-
-      console.log("@data :", data);
-      setProducts(data.data?.products[0]?.productsWithFiles);
-      setStateWithDistricts(data.data?.products[0]?.location);
-      setOriginalProducts(data.data.products); // 👈 Save full copy here
+      const data = await getJsonApi(
+        `productPage?${query}&page=${page}&limit=50`
+      );
+      setTotalPages(data?.data?.products[0]?.totalCount);
+      setMakes([...new Set(data?.data?.products[0]?.makes || [])]);
+      setOtherThanIndiaLocation(data?.data?.products[0]?.OtherThanIndia)
+      setProducts(data?.data?.products[0]?.productsWithFiles);
+      setStateWithDistricts(data?.data?.products[0]?.India);
+      setOriginalProducts(data?.data.products); // 👈 Save full copy here
     } catch (error) {
       console.error(error);
     }
@@ -153,7 +143,6 @@ export default function ProductList() {
   }
 
   const handleProductPress = (product) => {
-    console.log("productlistpage:", product);
     if (Platform.OS === "web") {
       // router.push(`/(screen)/SelectProduct?id=${product}`);
       router.push(`/screens/(productPage)/SelectProduct?id=${product}`);
@@ -161,18 +150,11 @@ export default function ProductList() {
       navigation.navigate("SelectProduct", { id: product });
     }
   };
-  const handleBrandChange = (value) => {
-    setSelectedBrand(value);
-    priceFilter(); // Apply the filter whenever the brand changes
-  };
 
-  const radioButtonData = [
-    { id: "1", label: "Fixed", value: "fixed" },
-    { id: "2", label: "Negotiable", value: "negotiable" },
-  ];
+  console.log('selectedPriceType :', otherThanIndiaLocation);
+
   const toggleFilter = (filter) =>
     setActiveFilter(activeFilter === filter ? null : filter);
-  // console.log(produ)
   return (
     <ScrollView>
       <SafeAreaView>
@@ -220,8 +202,15 @@ export default function ProductList() {
                   radioButtonData={radioButtonData}
                   setSelectedPriceType={setSelectedPriceType}
                   selectedPriceType={selectedPriceType}
+                  price={price}
+                  dataToMap={dataToMap}
+                  otherThanIndia={otherThanIndia}
+                  setOtherThanIndia={setOtherThanIndia}
+                  otherThanIndiaLocation={otherThanIndiaLocation}
+                  setOtherThanIndiaLocation={setOtherThanIndiaLocation}
                   // industries={industries}
                   // categories={categories}
+                  setSelectedMakes={setSelectedMakes}
                   location={statesWithDistricts}
                   selectedState={selectedState}
                   setSelectedState={setSelectedState}
@@ -229,7 +218,12 @@ export default function ProductList() {
                   setSelectedDistrict={setSelectedDistrict}
                   ProductList={ProductList}
                   priceSuggestions={priceSuggestions}
-                  storePrice={storePrice}
+                  setPrice={setPrice}
+                  setSelectedDistricts={setSelectedDistricts}
+                  selectedDistricts={selectedDistricts}
+                  makes={makes}
+                  selectedMakes={selectedMakes}
+                  // storePrice={storePrice}
                   // selectedIndustry={selectedIndustry}
                   // setSelectedIndustry={setSelectedIndustry}
                   // selectedCategory={selectedCategory}
@@ -254,8 +248,8 @@ export default function ProductList() {
                   gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
                 }}
               >
-                {products?.length > 0 &&
-                  products.map((product) => (
+                {filteredProducts?.length > 0 &&
+                  filteredProducts.map((product) => (
                     <Pressable
                       // key={product._id}
                       onPress={() => handleProductPress(product._id)}
@@ -307,14 +301,21 @@ export default function ProductList() {
               </View>
 
               {/* Pagination (optional) */}
-              <View className="flex items-end justify-center w-full my-4">
+              <View className="flex flex-row gap-8">
                 <Pressable
-                  className="bg-blue-600 rounded-sm w-[100px] flex items-center justify-center"
-                  style={{ height: 30 }}
+                  disabled={page === totalPages}
+                  onPress={() => {
+                    console.log("triggered");
+                    setPage(page + 1);
+                  }}
                 >
-                  <Text className="text-white font-semibold text-sm">
-                    Next Page
-                  </Text>
+                  <Text className="font-semibold cursor-pointer">Next</Text>
+                </Pressable>
+                <Pressable
+                  disabled={page === 1}
+                  onPress={() => setPage(page - 1)}
+                >
+                  <Text className="font-semibold cursor-pointer">Prev</Text>
                 </Pressable>
               </View>
             </ScrollView>

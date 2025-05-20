@@ -12,7 +12,6 @@ export default function MenuNavigation() {
     <Drawer.Navigator initialRouteName="AdminHomePage">
       <Drawer.Screen name="AdminHomePage" component={AdminHomePage} />
       <Drawer.Screen name="CategoryManager" component={CategoryManager} />
-      <Drawer.Screen name="EditCategory" component={EditCategory} />
       <Drawer.Screen name="BannerUpload" component={BannerUpload} />
     </Drawer.Navigator>
   );

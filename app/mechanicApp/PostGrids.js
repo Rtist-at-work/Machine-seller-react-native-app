@@ -48,7 +48,7 @@ const PostGrid = ({ posts, onPostPress, width }) => {
 
 const VideoGridItem = ({ videoId, onPostPress, index }) => {
   const player = useVideoPlayer(
-    `http://192.168.1.9:5000/video/${videoId}`,
+    `http://192.168.200.158:5000/video/${videoId}`,
     (player) => {
       player.loop = true;
       player.play();

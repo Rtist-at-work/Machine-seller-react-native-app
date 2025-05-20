@@ -17,14 +17,23 @@ import Login from "./screens/(auth)/(login)/Login";
 import SellScreen from "./screens/(sellerForm)/SellScreen";
 import SellPage from "./screens/(sellerForm)/Page";
 import LikeButton from "./mechanicApp/Like";
-
+import AdminHomePage from "./AdminFolder/AdminHomePage";
+import AdminPageNavigation from "./AdminFolder/AdminPageNavigation";
+import SubCategory from "./mechanicApp/SubCategory";
+import CategoryManager from "./AdminFolder/CategoryManager";
+import createCategory from "./AdminFolder/CreateCategory";
+import Layout from "./_layout";
+import QrPage from "./AdminFolder/QrPage";
+import PixelArtEditor from "./mechanicApp/PixelArtEditor";
 export default function index() {
   return (
     <>
       {/* {Platform.OS === "web" && <HomeScreen />}
        */}
       {/* <LandingPage /> */}
+
       {/* <BottomNavBar /> */}
+      {/* <Layout/> */}
       {/* <LikeButton /> */}
       {/* <SignUp /> */}
       {/* <SellScreen /> */}
@@ -33,8 +42,15 @@ export default function index() {
       {/* <MechanicList_2 /> */}
       {/* <ProfilePage /> */}
       {/* <SellPage /> */}
-      <HomeScreen />
+      {/* <HomeScreen /> */}
       {/* <All />  */}
+      {/* <AdminPageNavigation/> */}
+      {/* <MenuNavigation/> */}
+      {/* <QrPage/> */}
+      <PixelArtEditor/>
+      {/* <SubCategory/> */}
+      {/* <createCategory/> */}
+
     </>
   );
 }

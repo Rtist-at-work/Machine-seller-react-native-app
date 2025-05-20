@@ -86,18 +86,21 @@ const ProfilePage = ({ route }) => {
       dialCode: c.dialCode,
       iso2: c.iso2,
     }));
-
+console.log(userProfile)
   const update = async () => {
-    console.log("update function");
     try {
       const token = await AsyncStorage.getItem("userToken");
+      const role = await AsyncStorage.getItem("role");
+      console.log(userProfile)
       const response = await postJsonApi(
         `profile/update`,
         {
           username: userProfile.username,
+          bio : userProfile.bio,
           mobile: phoneNumber,
           countryCode: selectedCode,
           email: userProfile.email,
+          role : role
         },
         token
       );
@@ -112,8 +115,6 @@ const ProfilePage = ({ route }) => {
   };
 
   const passwordReset = async () => {
-    console.log("passwordReset function");
-
     if (password !== confirmpass) alert("password should not match");
     try {
       const token = await AsyncStorage.getItem("userToken");
@@ -129,9 +130,6 @@ const ProfilePage = ({ route }) => {
   };
 
   const handleLogout = useCallback(async () => {
-    // Alert.alert("Logout", "Are you sure you want to logout?");
-
-    console.log("Logout initiated");
     setUpdateModal(false);
     try {
       await AsyncStorage.removeItem("userToken");
@@ -148,9 +146,6 @@ const ProfilePage = ({ route }) => {
   }, [navigation]);
 
   async function fetchPosts(mechId) {
-    console.log("fetchPosts function");
-
-    console.log("ndfjnjnfdjnvj");
     try {
       const token = await AsyncStorage.getItem("userToken");
 
@@ -178,8 +173,6 @@ const ProfilePage = ({ route }) => {
   // post likes
 
   async function handleLike(post) {
-    console.log("reached like fuction");
-
     const token = await AsyncStorage.getItem("userToken");
 
     try {
@@ -198,8 +191,6 @@ const ProfilePage = ({ route }) => {
   const [comments, setComments] = useState("");
 
   async function handlePostComment(post, comment) {
-    console.log("handlePostComment fuction");
-
     const token = await AsyncStorage.getItem("userToken");
 
     try {
@@ -217,7 +208,6 @@ const ProfilePage = ({ route }) => {
   // fetch comments
 
   async function fetchComments(postId) {
-    console.log(" fetchComments reached");
     const token = await AsyncStorage.getItem("userToken");
 
     try {
@@ -234,8 +224,6 @@ const ProfilePage = ({ route }) => {
 
   useEffect(() => {
     const checkProfile = async () => {
-      console.log(" checkProfile reached");
-
       try {
         const storedToken = await AsyncStorage.getItem("userToken");
         const role = await AsyncStorage.getItem("role");
@@ -325,9 +313,7 @@ const ProfilePage = ({ route }) => {
     }
   }
   async function handleImageUpload(result, imagetype) {
-    console.log("handleImageUpload");
     try {
-      console.log(imagetype);
       // const response = await axios.get("http://192.168.1.6:5000/signup");
       const token = await AsyncStorage.getItem("userToken");
       const formdata = new FormData();

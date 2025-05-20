@@ -2,10 +2,10 @@ import React, { useState, useCallback } from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
-import ProfilePage from "../screens/(profile)/ProfilePage";
-import Login from "../screens/(auth)/(login)/Login";
-import SignUp from "../screens/(auth)/(SignIn)/SignUp";
-import MechanicList_2 from "../mechanicApp/MechanicList_2";
+import ProfilePage from "../../screens/(profile)/ProfilePage";
+import Login from "../../screens/(auth)/(login)/Login";
+import SignUp from "../../screens/(auth)/(SignIn)/SignUp";
+import MechanicList_2 from "../../mechanicApp/MechanicList_2";
 
 const Stack = createNativeStackNavigator();
 
@@ -40,6 +40,9 @@ export default function MechanicStack() {
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
+
+       
+    {/* </Stack.Navigator> */}
       {isLogin ? (
         <Stack.Screen
           name="MechanicProfilePage"

@@ -36,12 +36,12 @@ export default function SubCategory({
   const [isFocused, setIsFocused] = useState(false);
 
   // Filter categories based on user input
-  const filteredCategorySuggestions = categorySuggetion.filter((item) =>
+  const filteredCategorySuggestions = categorySuggetion?.filter((item) =>
     item.toLowerCase().includes(categoryInput.toLowerCase())
   );
 
   // Filter subcategories based on user input
-  const filteredSubcategorySuggestions = subcategorySuggetion.filter((item) =>
+  const filteredSubcategorySuggestions = subcategorySuggetion?.filter((item) =>
     item.toLowerCase().includes(subcategoryInput.toLowerCase())
   );
 

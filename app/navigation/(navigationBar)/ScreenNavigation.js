@@ -9,6 +9,7 @@ import ChatUser from "@/app/(chat)/RightPart/ChatUser";
 import SignUp from "@/app/screens/(auth)/(SignIn)/SignUp";
 import MechanicList_2 from "@/app/mechanicApp/MechanicList_2";
 import ProfilePage from "@/app/screens/(profile)/ProfilePage";
+import LandingPage from "@/app/screens/LandingPage";
 
 const Stack = createNativeStackNavigator();
 
@@ -59,15 +60,20 @@ const MechanicProfile = () => {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="MechanicPage"
-        component={MechanicList_2}
-        options={{ title: "MechanicPage ", headerShown: false }}
+        name="HomePage"
+        component={LandingPage}
+        options={{ title: "HomePage", headerShown: false }}
       />
       <Stack.Screen
+        name="MechanicPage"
+        component={MechanicList_2}
+        options={{ title: "MechanicPage", headerShown: false }}
+      />
+      {/* <Stack.Screen
         name="MechanicProfilePage"
         component={ProfilePage}
-        options={{ title: "MechanicProfilePage ", headerShown: false }}
-      />
+        options={{ title: "MechanicProfilePage", headerShown: false }}
+      /> */}
     </Stack.Navigator>
   );
 };

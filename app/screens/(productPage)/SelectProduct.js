@@ -26,6 +26,8 @@ import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import VideoComponent from "../(sellerForm)/Video";
 import { Ionicons } from "@expo/vector-icons";
+import VideoGridItem from "@/app/mechanicApp/VideoView";
+import Octicons from "@expo/vector-icons/Octicons";
 
 export default function SelectProduct() {
   const { width } = useWindowDimensions();
@@ -38,6 +40,7 @@ export default function SelectProduct() {
   const { wishlist, addToWishlist } = useWishlist();
   const [product, setProduct] = useState({});
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [media, setMedia] = useState([]);
 
   const { getJsonApi } = useApi();
 
@@ -73,8 +76,31 @@ export default function SelectProduct() {
   const fetchProduct = useCallback(async () => {
     try {
       const data = await getJsonApi(`productDetails/${id}`);
+      console.log("data :", data);
 
       const productData = data?.data?.mainProduct;
+
+      // media = [
+      //   data?.data?.mainProduct?.machineImages[0][0],
+      //   data?.data?.mainProduct?.machineVideos[0],
+      //   // ...data?.data?.mainProduct?.machineImages.slice(1, 3),
+      //   // data?.data?.mainProduct?.machineVideos[1],
+      // ];
+      setMedia([
+        data?.data?.mainProduct?.machineImages[0],
+        data?.data?.mainProduct?.machineVideos[0],
+        ...(data?.data?.mainProduct?.machineImages?.length > 1
+          ? data?.data?.mainProduct?.machineImages.slice(1, 3)
+          : []),
+        ...(data?.data?.mainProduct?.machineVideos?.length > 1
+          ? [data?.data?.mainProduct?.machineVideos[1]]
+          : []),
+        ...(data?.data?.mainProduct?.machineImages?.length > 3
+          ? data?.data?.mainProduct?.machineImages.slice(3)
+          : []),
+      ]);
+
+      console.log(data?.data?.mainProduct?.machineVideos);
 
       setProduct(productData);
 
@@ -146,6 +172,7 @@ export default function SelectProduct() {
   const openDailer = () => {
     Linking.openURL(`tel:${product.contact}`);
   };
+  // console.log( "jjjjjj :" , media[currentIndex].length === 24 );
 
   return (
     <ScrollView>
@@ -247,7 +274,7 @@ export default function SelectProduct() {
               >
                 {/* Sticky Image Section */}
                 <View
-                  className="bg-gray-100"
+                  className=""
                   style={{
                     width: isScreen ? "35%" : "90%",
                     marginLeft: isScreen ? 100 : 0,
@@ -259,19 +286,31 @@ export default function SelectProduct() {
                     alignItems: "center",
                   }}
                 >
-                  <Image
-                    className="rounded-sm"
-                    source={
-                      {
-                        uri: `data:image/jpeg;base64,${product.machineImages[currentIndex]}`,
+                  {media[currentIndex].length === 24 ? (
+                    <View
+                      style={{
+                        width: "100%",
+                        height: Platform.OS === "web" ? "400px" : 300,
+                      }}
+                    >
+                      <VideoGridItem videoId={media[currentIndex]} />
+                    </View>
+                  ) : (
+                    // <Text className="text-center">video</Text>
+                    <Image
+                      className="rounded-sm"
+                      source={
+                        {
+                          uri: `data:image/jpeg;base64,${media[currentIndex]}`,
+                        }
+                        // Provide a local placeholder image if needed
                       }
-                      // Provide a local placeholder image if needed
-                    }
-                    style={{
-                      width: "100%",
-                      height: Platform.OS === "web" ? "400px" : 300,
-                    }}
-                  />
+                      style={{
+                        width: "100%",
+                        height: Platform.OS === "web" ? "400px" : 300,
+                      }}
+                    />
+                  )}
 
                   <View className=" absolute top-2 left-2 p-2 w-[100px] bg-yellow-500 rounded-sm justify-center items-center">
                     <Text className=" text-base font-bold">
@@ -279,22 +318,53 @@ export default function SelectProduct() {
                     </Text>
                   </View>
 
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    <View className="mt-4 flex flex-row gap-2 z-1">
-                      {product.machineImages.map((image, index) => (
+                  <ScrollView
+                    horizontal={true}
+                    style={{
+                      height: 80,
+                      marginTop: 16,
+                      maxWidth: "100%",
+
+                      paddingTop: 30,
+                    }}
+                  >
+                    {media.map((item, index) => {
+                      const isVideo = item.length === 24;
+                      return (
                         <Pressable
                           onPress={() => slideNavigator(index)}
                           key={index}
+                          style={{
+                            width: 80,
+                            height: 80,
+                            borderRadius: 6,
+                            overflow: "hidden",
+                            marginRight: 8, // spacing between thumbnails
+                          }}
                         >
-                          <Image
-                            className="rounded-sm"
-                            source={{ uri: `data:image/jpeg;base64,${image}` }}
-                            style={{ width: 80, height: 80 }}
-                          />
+                          {!isVideo ? (
+                            <Image
+                              source={{ uri: `data:image/jpeg;base64,${item}` }}
+                              style={{ width: 80, height: 80, borderRadius: 6 }}
+                              resizeMode="cover"
+                            />
+                          ) : (
+                            <View
+                              style={{
+                                width: 80,
+                                height: 80,
+                                backgroundColor: "#D1D5DB",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                borderRadius: 6,
+                              }}
+                            >
+                              <Octicons name="video" size={36} color="red" />
+                            </View>
+                          )}
                         </Pressable>
-                      ))}
-                      <VideoComponent id={id} />
-                    </View>
+                      );
+                    })}
                   </ScrollView>
                 </View>
 
@@ -312,8 +382,12 @@ export default function SelectProduct() {
                     <View className="bg-gray-100">
                       <View className="flex flex-row">
                         <Pressable
-                          onPress={() => {
-                            setSelectedConversation(product.userId);
+                          onPress={async () => {
+                            setSelectedConversation(product?.userId);
+                            await AsyncStorage.setItem(
+                              "selectedConversation",
+                              String(product?.userId)
+                            );
                             if (Platform.OS === "web") {
                               router.push("/Chat");
                             } else {

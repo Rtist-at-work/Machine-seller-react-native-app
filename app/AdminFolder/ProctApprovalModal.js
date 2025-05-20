@@ -6,10 +6,12 @@ import {
   FlatList,
   Image,
   Button,
+  useWindowDimensions,
 } from "react-native";
 import { Text, Modal } from "react-native";
 import { useEvent } from "expo";
 import { useVideoPlayer, Video } from "expo-video";
+import VideoGridItem from "../mechanicApp/VideoView";
 
 const ProductApprovalModal = ({
   product,
@@ -22,6 +24,9 @@ const ProductApprovalModal = ({
   currentIndex,
   totalProducts,
 }) => {
+    const { width } = useWindowDimensions();
+    const isScreen = width > 786;
+  console.log("product :", product);
   return (
     <Modal visible={isVisible} animationType="slide">
       <ScrollView>
@@ -38,25 +43,26 @@ const ProductApprovalModal = ({
               <>
                 <View className="bg-white p-4 rounded-lg shadow-md">
                   <Text className="text-xl font-bold text-gray-900">
-                    {product.make} - {product.category}
+                    {product?.make} - {product?.category}
                   </Text>
                   <Text className="text-base text-gray-700 mt-2">
-                    Condition: {product.condition}
+                    Condition: {product?.condition}
                   </Text>
                   <Text className="text-base text-gray-700">
-                    Industry: {product.industry}
+                    Industry: {product?.industry}
                   </Text>
                   <Text className="text-base text-gray-700">
                     {/* Location: {product.location.state, product.location.district} */}
                   </Text>
                   <Text className="text-base text-gray-700">
-                    Contact: {product.contact}
+                    Contact: {product?.contact.countryCode}{" "}
+                    {product?.contact.number}
                   </Text>
                   <Text className="text-base text-gray-700 mt-2">
-                    Description: {product.description}
+                    Description: {product?.description}
                   </Text>
                   <Text className="text-xl font-bold text-teal-600 mt-4">
-                    ₹ {product.price} ({product.priceType || "negotiable"})
+                    ₹ {product?.price} ({product?.priceType || "negotiable"})
                   </Text>
                 </View>
 
@@ -64,7 +70,7 @@ const ProductApprovalModal = ({
                   <>
                     <Text className="text-lg font-bold mt-6">Images</Text>
                     <FlatList
-                      data={product.machineImages}
+                      data={product?.machineImages[0]}
                       horizontal
                       pagingEnabled
                       showsHorizontalScrollIndicator={false}
@@ -79,41 +85,26 @@ const ProductApprovalModal = ({
                   </>
                 )}
 
-                {/* {product.machineVideos?.length > 0 && (
-                <>
-                  <Text className="text-lg font-bold mt-6">Videos</Text>
-                  {product.machineVideos.map((vid, index) => {
-                    const player = useVideoPlayer(vid.uri, (player) => {
-                      player.loop = true;
-                      player.play();
-                    });
-                    const { isPlaying } = useEvent(player, "playingChange", {
-                      isPlaying: player.playing,
-                    });
-
-                    return (
-                      // <View key={index} className="mt-2">
-                      //   <Video
-                      //     source={{ uri: `data:video/mp4;base64,${vid.uri}` }}
-                      //     style={{ width: 300, height: 200 }}
-                      //     shouldPlay
-                      //     useNativeControls
-                      //   />
-                      //   <Button
-                      //     title={isPlaying ? "Pause" : "Play"}
-                      //     onPress={() => {
-                      //       if (isPlaying) {
-                      //         player.pause();
-                      //       } else {
-                      //         player.play();
-                      //       }
-                      //     }}
-                      //   />
-                      // </View>
-                    );
-                  })}
-                </>
-              )} */}
+                <Text className="text-lg font-bold mt-6">Videos</Text>
+                
+                <View
+                  className={`flex   ${width<=640 ? 'flex-col' : 'flex-row gap-8'}`}
+                  style={{
+                    width: isScreen ? "35%" : "90%",
+                    marginLeft: isScreen ? 100 : 0,
+                    position: isScreen ? "sticky" : "relative",
+                    top: 0,
+                    height: isScreen ? "70vh" : "auto",
+                    zIndex: 10,
+                    borderRadius: 10,
+                    alignItems: "center",
+                  }}
+                >
+                  {product.machineVideos?.length > 0 &&
+                    product.machineVideos.map((vid, index) => (
+                      <VideoGridItem key={index} videoId={vid} />
+                    ))}
+                </View>
               </>
             )}
           </ScrollView>

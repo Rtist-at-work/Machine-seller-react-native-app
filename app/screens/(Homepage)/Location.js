@@ -37,7 +37,7 @@ const Location = ({ location, setLocation }) => {
       const data = await getJsonApi(`CategoryPage`);
       const fetchedRegions = data?.data?.states[0]?.states || [];
       const fetchedDistricts = data?.data?.states[1]?.districts || [];
-
+console.log('states :', fetchedDistricts)
       setRegions(fetchedRegions);
       setDistrictsWithStates(fetchedDistricts);
 

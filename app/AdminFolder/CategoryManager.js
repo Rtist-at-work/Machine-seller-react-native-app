@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Platform, useWindowDimensions, View, ScrollView } from "react-native";
+import { Platform, useWindowDimensions, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import OperationSwitcher from "./OperationSwitcher";
 import { useState } from "react";
@@ -8,91 +8,63 @@ import SubCategoryDisplayer from "./SubCategoryDisplayer";
 import Toast from "react-native-toast-message";
 import axios from "axios";
 import EditCategory from "./EditCategory";
+import AdminCat from "./AdminCat";
 
 const CategoryManager = () => {
-  const [cat, setCat] = useState(["", []]);
-  const [temp, setTemp] = useState("");
-  const [tempMake, setTempMake] = useState([]);
+  const [industry, setIndustry] = useState("");
+  const [category, setCategory] = useState("");
+  const [subCategories, setSubCategories] = useState([
+    { name: "", services: [""] },
+  ]);
+
+  console.log('subCategories :', subCategories)
+
   const [selected, setSelected] = useState("add");
   const [categoryList, setCategoryList] = useState([]);
+  const [indutryList, setIndustryList] = useState([]);
+  const [selectedIndustry, setSelectedIndustry] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [popUp, setPopUp] = useState(false);
   const { width } = useWindowDimensions();
-  const [selectedSub, setSelectedSub] = useState(0);
 
-  console.log(cat + "kkkkkkk");
-  const handleSubmit = async () => {
-    if (cat[0].length <= 0) {
-      return showToast("Industry name cannot be empty");
-    } else if (cat[1].length <= 0) {
-      return showToast("Category name cannot be empty");
-    }
-    const emptyCategory = cat[1].find((obj) =>
-      Object.values(obj).some((arr) => Array.isArray(arr) && arr.length === 0)
-    );
-
-    if (emptyCategory) {
-      return showToast(
-        `${String(
-          Object.keys(emptyCategory)
-        ).toUpperCase()} is empty, Please add at least one make`
-      );
-    }
-
+  const getCategory = async (industryId, fetchdata) => {
     try {
-      const response = await axios.post(
-        "http://192.168.1.5:5000/adminCategories",
-        { cat },
-        { headers: { "Content-Type": "application/json" } }
-      );
-      if (response.status === 200) {
-        showToast(response.data.message);
-        setCat(["", []]);
-        console.log(response.data, "sent success");
-      }
-    } catch (error) {
-      if (error.response?.data?.code === 409) {
-        showToast("You have already entered this field!");
+      let uri;
+      if (!fetchdata && !industryId) {
+        uri = `http://192.168.1.9:4000/adminCategories/getCategory`;
       } else {
+        uri = `http://192.168.1.9:4000/adminCategories/getCategory/${industryId}/${fetchdata}`;
       }
-      console.log("Backend error:", error.response?.data);
-    }
-  };
 
-  useEffect(() => {
-    console.log(selected);
-    if (
-      selected === "edit" ||
-      (selected === "add" && selectedCategory.length > 0)
-    ) {
-      console.log("driggered");
-      getCategory();
-    }
-  }, [selected, selectedCategory]);
+      const response = await axios.get(uri, {
+        headers: { "Content-Type": "application/json" },
+      });
 
-  const getCategory = async () => {
-    console.log(selectedCategory);
-    try {
-      const response = await axios.get(
-        `http://192.168.1.5:5000/adminCategories/getCategory/${selectedCategory}`,
-        {
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-      if (response.status === 200) {
-        selectedCategory.length > 0
-          ? setCat(() => {
-              const updated = [...cat];
-              updated[1] = Object.values(response.data.category);
-              return updated;
-            })
-          : setCategoryList(response?.data?.category);
+      if (response.status === 200 && fetchdata === "category") {
+        setCategoryList(response.data.category);
+      } else if (response.status === 200 && fetchdata === "subcategory") {
+        console.log(response.data.category.subCategories);
+
+        setIndustry(response.data.category.industry?.name || "");
+        setCategory(response.data.category.category?.name || "");
+        setSelectedCategory(industryId);
+        setSubCategories(
+          response.data.category.subCategories.map((sub) => ({
+            _id: sub._id,
+            name: sub.name,
+            services:
+              sub.brands.map((brand) => ({
+                name: brand.name,
+                _id: brand._id,
+              })) || [],
+          }))
+        );
+      } else if (!industryId && !fetchdata) {
+        setIndustryList(response.data.category);
       }
     } catch (err) {
       showToast(err.message);
     }
   };
-  console.log(categoryList);
   const showToast = (message, type = "error") => {
     Toast.show({
       type: type, // 'success' or 'error'
@@ -102,83 +74,143 @@ const CategoryManager = () => {
   };
 
   useEffect(() => {
-    setSelectedSub(() => cat[1].length - 1);
-  }, [cat[1]]);
+    if (selected === "edit") getCategory("", "");
+    // }
+  }, [selected]);
 
-  const handleAddSubcategory = () => {
-    setCat((prev) => [prev[0], [...prev[1], { [temp]: [] }]]);
-    setTemp("");
-    setPopUp(!popUp);
+  const handleSubmit = async () => {
+    console.log("triggered");
+    if (!industry?.trim()) {
+      return showToast("Please enter an industry name.");
+    }
+
+    if (!category?.trim()) {
+      return showToast("Please enter a category name.");
+    }
+
+    if (!Array.isArray(subCategories) || subCategories.length === 0) {
+      return showToast("Please add at least one subcategory.");
+    }
+
+    for (let i = 0; i < subCategories.length; i++) {
+      const sub = subCategories[i];
+      if (!sub.name?.trim()) {
+        return showToast(`Subcategory ${i + 1} name is required.`);
+      }
+      if (!Array.isArray(sub.services) || sub.services.length === 0) {
+        return showToast(
+          `Please add at least one brand in subcategory ${i + 1}.`
+        );
+      }
+      for (let j = 0; j < sub.services.length; j++) {
+        if (!sub.services[j]?.name?.trim() && selected === "edit") {
+          return showToast(`Brand ${j + 1} in subcategory ${i + 1} is empty.`);
+        } else if (!sub.services[j]?.trim() && selected === "add") {
+          return showToast(`Brand ${j + 1} in subcategory ${i + 1} is empty.`);
+        }
+      }
+    }
+
+    let finalData = {
+      industry,
+      category,
+      subCategories,
+    };
+
+    let uri =
+      selectedCategory && selected === "edit"
+        ? "http://192.168.174.158:5000/adminCategories/editCategory"
+        : "http://192.168.174.158:5000/adminCategories/";
+
+    if (selectedCategory && selected === "edit") {
+      finalData = {
+        ...finalData,
+        selectedIndustry: selectedIndustry,
+        selectedCategory: selectedCategory,
+      };
+    }
+
+    try {
+      const response = await axios({
+        method: selectedCategory && selected === "edit" ? "put" : "post",
+        url: uri,
+        data: finalData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      console.log('response :', response)
+      if (response.status === 200) {
+        showToast(response.data.message);
+        setCategory("");
+        setSubCategories([{ name: "", services: [""] }]);
+      }
+    } catch (error) {
+      if (error.response?.data?.code === 409) {
+        showToast("You have already entered this field!");
+      }
+      console.log("Backend error:", error.response?.data);
+    }
   };
+
   return (
-    <ScrollView>
-      <SafeAreaView>
-        <View className="z-50">
-          <Toast />
+    <SafeAreaView>
+      {/* Toast */}
+      <View className="z-50">
+        <Toast />
+      </View>
+
+      <View className=" flex h-screen mb-24">
+        {/* Swicher */}
+        <View className="h-[10%] ">
+          <OperationSwitcher
+            setIndustry={setIndustry}
+            setCategory={setCategory}
+            setSubCategories={setSubCategories}
+            selected={selected}
+            setSelected={setSelected}
+            setSelectedCategory={setSelectedCategory}
+          />
         </View>
 
-        <View className=" flex h-screen">
-          {/* Swicher */}
-          <View className="h-[10%] ">
-            <OperationSwitcher
-              selected={selected}
-              setSelected={setSelected}
-              setCat={setCat}
-              setSelectedCategory={setSelectedCategory}
-            />
-          </View>
-
-          <View
-            className={`${
-              Platform.OS === "web" && width >= 1024
-                ? "flex-row"
-                : selected === "add"
-                ? "flex-col max-h-[50%]"
-                : ""
-            } flex-1 flex gap-2 p-2 mt-8`}
-          >
-            {selected === "add" ||
-            (selected === "edit" && cat[0].length > 0) ? (
-              <>
-                <CreateCategory
-                  setCat={setCat}
-                  cat={cat}
-                  temp={temp}
-                  setTemp={setTemp}
-                  setPopUp={setPopUp}
-                  popUp={popUp}
-                  setSelectedSub={setSelectedSub}
-                  handleAddSubcategory={handleAddSubcategory}
-                  handleSubmit={handleSubmit}
-                />
-                <SubCategoryDisplayer
-                  setSelectedSub={setSelectedSub}
-                  cat={cat}
-                  tempMake={tempMake}
-                  setTempMake={setTempMake}
-                  setCat={setCat}
-                  showToast={showToast}
-                  popUp={popUp}
-                  setPopUp={setPopUp}
-                  selectedSub={selectedSub}
-                />
-              </>
-            ) : (
-              <EditCategory
-                categoryList={categoryList}
-                setCategoryList={setCategoryList}
-                setCat={setCat}
-                cat={cat}
-                Toast={Toast}
-                showToast={showToast}
-                setSelected={setSelected}
-                setSelectedCategory={setSelectedCategory}
+        <View
+          className={`${
+            Platform.OS === "web" && width >= 1024
+              ? "flex-row"
+              : selected === "add"
+              ? "flex-col max-h-[50%]"
+              : ""
+          } flex-1 flex gap-2 p-2 mt-8`}
+        >
+          {selected === "add" || (selected === "edit" && selectedCategory) ? (
+            <>
+              <AdminCat
+                industry={industry}
+                handleSubmit={handleSubmit}
+                setIndustry={setIndustry}
+                category={category}
+                setCategory={setCategory}
+                subCategories={subCategories}
+                setSubCategories={setSubCategories}
               />
-            )}
-          </View>
+            </>
+          ) : (
+            <EditCategory
+              getCategory={getCategory}
+              categoryList={categoryList}
+              setCategoryList={setCategoryList}
+              Toast={Toast}
+              showToast={showToast}
+              setSelected={setSelected}
+              setSelectedCategory={setSelectedCategory}
+              selectedIndustry={selectedIndustry}
+              setSelectedIndustry={setSelectedIndustry}
+              industryList={indutryList}
+            />
+          )}
         </View>
-      </SafeAreaView>
-    </ScrollView>
+      </View>
+    </SafeAreaView>
   );
 };
 

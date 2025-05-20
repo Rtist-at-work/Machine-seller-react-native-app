@@ -273,7 +273,7 @@ const PostViewerModal = ({
                 //   }
                 // }}
                 >
-                  <VideoGridItem videoId={post.media} />
+                  <VideoGridItem videoId={post.media}  />
                 </TouchableOpacity>
               ) : (
                 <Image
@@ -422,7 +422,7 @@ const PostViewerModal = ({
 
 const VideoGridItem = ({ videoId, onPostPress, index }) => {
   const player = useVideoPlayer(
-    `http://192.168.1.9:5000/video/${videoId}`,
+    `http://192.168.200.158:5000/video/${videoId}`,
     (player) => {
       player.loop = true;
       player.play();

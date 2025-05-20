@@ -28,6 +28,7 @@ import Header from "../component/(header)/Header";
 import { Modal } from "react-native";
 import Octicons from "@expo/vector-icons/Octicons";
 import { BlurView } from "expo-blur";
+import QrModal from "./QrModal";
 
 const MechanicList_2 = () => {
   const { width } = useWindowDimensions();
@@ -41,7 +42,11 @@ const MechanicList_2 = () => {
     page,
     setPage,
     totalPages,
+    setOtherThanIndiaLocation,
+    otherThanIndiaLocation,
     setTotalPages,
+    qr,
+    setQr
   } = GetMechanic();
   const isSmallScreen = width < 768;
   const isMediumScreen = width >= 768 && width < 1024;
@@ -58,8 +63,6 @@ const MechanicList_2 = () => {
   const [expandedMechanicId, setExpandedMechanicId] = useState(null);
   // console.log("expa", expandedMechanicId);
   const [viewMoreModalVisible, setViewMoreModalVisible] = useState(false);
-  const [layout, setLayout] = useState(false);
-
   // filter options
 
   const [selectedState, setSelectedState] = useState("");
@@ -79,6 +82,8 @@ const MechanicList_2 = () => {
   const [rating, setRating] = useState(0); // Rating state
   const [reviewText, setReviewText] = useState(""); // Review text state
   const [selectedMech, setSelectedMech] = useState(null);
+  const [otherThanIndia, setOtherThanIndia] = useState(false);
+  let dataToMap = otherThanIndia ? otherThanIndiaLocation : location;
 
   // sumbit reviews
   const navigation = useNavigation();
@@ -169,18 +174,23 @@ const MechanicList_2 = () => {
       : true;
 
     const matchesState = selectedState
-      ? mechanic.region === selectedState
+      ? otherThanIndia
+        ? mechanic.country === selectedState
+        : mechanic.region === selectedState
       : true;
 
     const matchesDistrict =
       selectedDistrict.length > 0
-        ? selectedDistrict.includes(mechanic.district)
+        ? selectedDistrict.includes(
+            otherThanIndia ? mechanic.region : mechanic.district
+          )
         : true;
 
     const matchesRating = selectedRating
-      ? mechanic.averageRating >= selectedRating &&
-        mechanic.averageRating < selectedRating + 1
-      : true;
+      ? mechanic.averageRating >= selectedRating
+      : // &&
+        //   mechanic.averageRating < selectedRating + 1
+        true;
 
     return (
       matchesIndustry &&
@@ -192,8 +202,6 @@ const MechanicList_2 = () => {
       matchesRating
     );
   });
-  console.log("mechanicSearchResults :", mechanicSearchResults);
-  console.log("fil :", filteredMechanics);
   const handleProfileNavigation = async (id) => {
     const token = await AsyncStorage.getItem("userToken");
 
@@ -212,6 +220,7 @@ const MechanicList_2 = () => {
     }
   };
 
+  console.log("qr", qr);
   return (
     <>
       <Header
@@ -233,6 +242,8 @@ const MechanicList_2 = () => {
       )}
 
       <ScrollView className="w-screen min-h-screen flex flex-rrow bg-gray-100 px-2 pb-6 ">
+        {/* {qr && <QrModal visible={qr} onClose={() => setQr(true)} />} */}
+
         <View
           className={`flex flex-row rounded-sm mt-5 min-h-screen  gap-2 mb-48`}
           style={{ zIndex: -1 }}
@@ -244,6 +255,10 @@ const MechanicList_2 = () => {
                 industries={industries}
                 categories={categories}
                 location={location}
+                otherThanIndia={otherThanIndia}
+                setOtherThanIndia={setOtherThanIndia}
+                dataToMap={dataToMap}
+                // setSelectedPriceType={setSelectedPriceType}
                 selectedState={selectedState}
                 setSelectedState={setSelectedState}
                 selectedDistrict={selectedDistrict}
@@ -261,6 +276,8 @@ const MechanicList_2 = () => {
                 setIsOpen={setIsOpen}
                 selectedDistricts={selectedDistricts}
                 setSelectedDistricts={setSelectedDistricts}
+                setOtherThanIndiaLocation={setOtherThanIndiaLocation}
+                otherThanIndiaLocation={otherThanIndiaLocation}
               />
             </View>
           )}
@@ -446,7 +463,7 @@ const MechanicList_2 = () => {
                               <Text>{mechanic.subcategory[0].name} :</Text>
                             </View>
 
-                            {layout <= 180 ? (
+                            {/* {layout <= 100 ? (
                               <View
                                 className="flex flex-row"
                                 onLayout={(e) =>
@@ -460,14 +477,19 @@ const MechanicList_2 = () => {
                                     </Text>
                                   )
                                 )}
-                              </View>
-                            ) : (
-                              <View className="flex flex-row">
-                                <Text className="ml-2">
-                                  {mechanic.subcategory[0].services[0]}
-                                </Text>
-                              </View>
-                            )}
+                              </View> */}
+                            {/* ) : ( */}
+                            <View className="flex flex-row">
+                              <Text className="ml-2">
+                                {mechanic.subcategory[0].services[0].slice(
+                                  0,
+                                  25
+                                )}{" "}
+                                ...
+                              </Text>
+                            </View>
+
+                            {/* )} */}
                           </View>
 
                           {/* {layout > 180 && ( */}
@@ -489,7 +511,7 @@ const MechanicList_2 = () => {
                             <Text>
                               {mechanic?.services[0]?.length > 25
                                 ? `${mechanic.services[0].substring(0, 25)}...`
-                                : mechanic.services[0]}
+                                : `${mechanic.services[0]} ...`}
                             </Text>
                           </View>
                           <TouchableWithoutFeedback

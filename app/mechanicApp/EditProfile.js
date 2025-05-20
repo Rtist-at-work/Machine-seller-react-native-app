@@ -192,10 +192,14 @@ const EditProfile = ({
     }
   };
 
-  const handleRemoveService = (index) => {
-    setServices((prev) => prev.filter((_, i) => i !== index));
-  };
+  const handleRemoveService = (serviceToRemove) => {
+  setMechanicDetails((prev) => ({
+    ...prev,
+    services: prev.services.filter((s) => s !== serviceToRemove),
+  }));
+};
 
+console.log(mechanicDetails)
   return (
     <Modal
       animationType="slide"
@@ -317,7 +321,7 @@ const EditProfile = ({
                   >
                     <Text>{service}</Text>
                     <TouchableOpacity
-                      onPress={() => handleRemoveService(index)}
+                      onPress={() => handleRemoveService(service)}
                     >
                       <Icon name="close" size={20} color="red" />
                     </TouchableOpacity>

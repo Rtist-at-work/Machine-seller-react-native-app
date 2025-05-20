@@ -11,6 +11,7 @@ import Header from "./component/(header)/Header";
 import { FileUploadProvider } from "./context/FileUpload";
 import { FormatTime, FormatTimeProvider } from "./context/FormatTime";
 import { ToastProvider } from "react-native-toast-notifications";
+import BottomNavBar from "./navigation/(navigationBar)/BottomNavBar";
 
 const Layout = () => {
   return (
@@ -24,8 +25,10 @@ const Layout = () => {
                   <SafeAreaView
                     style={{ zIndex: 9999, backgroundColor: "#d5d8dc" }}
                   >
+                    {/* <Header /> */}
                     {/* {Platform.OS !== "web" && <MobileHeader />}
               {Platform.OS === "web" && <Header />} */}
+              {/* <BottomNavBar/> */}
                   </SafeAreaView>
                   <Stack screenOptions={{ headerShown: false }} />
                 </FormatTimeProvider>
